@@ -194,7 +194,7 @@ export default function Home() {
       {tier === "free" && remaining === 0 && (
         <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl print:hidden">
           <p className="text-sm text-amber-800 font-medium">✦ Premium: bessere Gesetzesreferenzen mit Claude AI</p>
-          <button onClick={() => { setPremium(true); setStep("form"); }} className="text-xs text-amber-700 underline">10 Briefe freischalten — CHF 4.90</button>
+          <button onClick={startCheckout} disabled={checkoutLoading} className="text-xs text-amber-700 underline">{checkoutLoading ? "Weiterleitung…" : "10 Briefe freischalten — CHF 4.90"}</button>
         </div>
       )}
       {tier === "free" && remaining > 0 && (
@@ -386,9 +386,9 @@ export default function Home() {
           className="px-10 py-4 rounded-xl font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-all text-base mb-3 block mx-auto">
           Jetzt Brief erstellen →
         </button>
-        <button onClick={() => { setPremium(true); setStep("form"); }}
+        <button onClick={startCheckout} disabled={checkoutLoading}
           className="inline-block text-sm text-amber-600 hover:underline font-medium">
-          ✦ Premium freischalten — CHF 4.90 →
+          {checkoutLoading ? "Weiterleitung…" : "✦ Premium freischalten — CHF 4.90 →"}
         </button>
         <p className="text-xs text-zinc-300 mt-6">DSGVO-konform · Name & Adresse bleiben auf deinem Gerät · Kein Konto nötig</p>
       </div>
