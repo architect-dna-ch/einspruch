@@ -194,7 +194,7 @@ export default function Home() {
       {tier === "free" && remaining === 0 && (
         <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl print:hidden">
           <p className="text-sm text-amber-800 font-medium">✦ Premium: bessere Gesetzesreferenzen mit Claude AI</p>
-          <a href="mailto:ma.akd@proton.me?subject=Einspruch%20Premium" className="text-xs text-amber-700 underline">Zugang anfragen — CHF 6/Monat</a>
+          <button onClick={() => { setPremium(true); setStep("form"); }} className="text-xs text-amber-700 underline">10 Briefe freischalten — CHF 4.90</button>
         </div>
       )}
       {tier === "free" && remaining > 0 && (
@@ -386,10 +386,10 @@ export default function Home() {
           className="px-10 py-4 rounded-xl font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-all text-base mb-3 block mx-auto">
           Jetzt Brief erstellen →
         </button>
-        <a href="mailto:ma.akd@proton.me?subject=Einspruch%20Premium%20Zugang"
+        <button onClick={() => { setPremium(true); setStep("form"); }}
           className="inline-block text-sm text-amber-600 hover:underline font-medium">
-          ✦ Premium-Zugang anfragen →
-        </a>
+          ✦ Premium freischalten — CHF 4.90 →
+        </button>
         <p className="text-xs text-zinc-300 mt-6">DSGVO-konform · Name & Adresse bleiben auf deinem Gerät · Kein Konto nötig</p>
       </div>
     </main>
