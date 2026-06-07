@@ -36,7 +36,12 @@ Format (strikt einhalten):
 REGELN: Kein Markdown, keine Sternchen, nur reiner Text. Bestimmt und sachlich. NUR den Brief ausgeben.`;
 }
 
+const ALLOWED = ["https://einspruch.architect-dna.ch", "http://localhost:3000"];
+
 export async function POST(req: Request) {
+  const origin = req.headers.get("origin") ?? "";
+  if (!ALLOWED.includes(origin)) return Response.json({ error: "Forbidden" }, { status: 403 });
+
   const { recipient, situation, goal, premium } = await req.json();
   if (!situation?.trim() || !goal?.trim()) {
     return Response.json({ error: "Missing fields" }, { status: 400 });

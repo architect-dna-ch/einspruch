@@ -20,7 +20,9 @@ export const metadata: Metadata = {
     description: "Krankenkasse, Vermieter oder Behörde zurückschreiben — mit KVG/OR-Artikeln, Frist und juristischem Ton. Kostenlos testen.",
     url: "https://einspruch.architect-dna.ch",
     type: "website",
+    images: [{ url: "https://einspruch.architect-dna.ch/og.png", width: 1200, height: 630 }],
   },
+  twitter: { card: "summary_large_image", images: ["https://einspruch.architect-dna.ch/og.png"] },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://einspruch.architect-dna.ch" },
 };
