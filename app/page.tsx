@@ -92,6 +92,29 @@ export default function Home() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const adminToken = params.get("admin");
+    if (!adminToken) return;
+    window.history.replaceState({}, "", "/"); // strip token from the URL/history immediately
+    fetch("/api/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: adminToken }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.granted) {
+          const current = parseInt(localStorage.getItem(PURCHASED_KEY) || "0");
+          localStorage.setItem(PURCHASED_KEY, String(current + data.granted));
+          setPurchasedPrem((prev) => prev + data.granted);
+          setPremium(true);
+          setStep("form");
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
     if (params.get("payment") !== "success") return;
     const sid = params.get("session_id");
     window.history.replaceState({}, "", "/");
