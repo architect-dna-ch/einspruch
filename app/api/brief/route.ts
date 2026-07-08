@@ -10,6 +10,7 @@ const RECIPIENTS: Record<string, string> = {
   arbeitgeber: "Arbeitgeber",
   ahv:         "AHV/IV/Sozialversicherung",
   bank:        "Bank / Versicherung",
+  telekom:     "Telekom-/Internetanbieter",
   andere:      "Behörde",
 };
 
@@ -28,6 +29,7 @@ Format (strikt einhalten):
   Vermieter → OR Art. 259a–259i, Art. 271
   Arbeitgeber → OR Art. 324a, ArG Art. 6
   AHV/IV → ATSG Art. 52/59, IVG Art. 59
+  Telekom-/Internetanbieter → UWG Art. 2 (Generalklausel, Treu und Glauben — bei künstlichen Kündigungsbarrieren wie Zwang zur Hotline, blockiertem Online-Zugang oder 2FA-Zirkelschluss ohne Alternative), OR Art. 62 (ungerechtfertigte Bereicherung — Rückerstattung bei nachweisbarer Nichtnutzung), OR Art. 119 (Unmöglichkeit der Leistungsinanspruchnahme, falls Zugang zum Dienst unverschuldet verunmöglicht wurde)
   Behörde → VwVG Art. 50/52, kantonales Verwaltungsrecht
 - Absatz 3: Konkrete Forderung mit Frist ("innert 14 Tagen") und klare Konsequenz
 - Abschluss: "Freundliche Grüsse,"
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
   if (usePremium) {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
-      model: "claude-opus-4-7",
+      model: "claude-opus-4-8",
       max_tokens: 1000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],

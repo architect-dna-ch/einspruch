@@ -34,6 +34,7 @@ const RECIPIENTS = [
   { id: "arbeitgeber", label: "💼 Arbeitgeber" },
   { id: "ahv",         label: "📋 AHV / IV / Sozialdienst" },
   { id: "bank",        label: "🏦 Bank / Versicherung" },
+  { id: "telekom",     label: "📱 Telekom / Internetanbieter" },
   { id: "andere",      label: "📝 Andere" },
 ];
 
