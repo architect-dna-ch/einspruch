@@ -396,12 +396,12 @@ export default function Home() {
           <div className="text-lg font-bold mb-1">✦ Premium</div>
           <div className="text-xs text-amber-600 mb-4">Claude AI · Präzisere Artikel</div>
           <ul className="text-sm text-zinc-700 space-y-2 mb-6">
-            <li>✓ Unbegrenzte Briefe</li>
+            <li>✓ 10 Briefe pro Kauf</li>
             <li>✓ Absätze & Litera zitiert</li>
             <li>✓ Stärkere juristische Sprache</li>
-            <li>✓ Zugangscode per E-Mail</li>
+            <li>✓ Kein Konto, keine Anmeldung nötig</li>
           </ul>
-          <div className="text-2xl font-bold">CHF 6<span className="text-sm font-normal text-zinc-500">/Monat</span></div>
+          <div className="text-2xl font-bold">CHF 4.90<span className="text-sm font-normal text-zinc-500"> / 10 Briefe</span></div>
         </div>
       </div>
 
