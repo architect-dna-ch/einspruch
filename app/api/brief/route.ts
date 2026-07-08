@@ -29,7 +29,7 @@ Format (strikt einhalten):
   Vermieter → OR Art. 259a–259i, Art. 271
   Arbeitgeber → OR Art. 324a, ArG Art. 6
   AHV/IV → ATSG Art. 52/59, IVG Art. 59
-  Telekom-/Internetanbieter → UWG Art. 2 (Generalklausel, Treu und Glauben — bei künstlichen Kündigungsbarrieren wie Zwang zur Hotline, blockiertem Online-Zugang oder 2FA-Zirkelschluss ohne Alternative), OR Art. 62 (ungerechtfertigte Bereicherung — Rückerstattung bei nachweisbarer Nichtnutzung), OR Art. 119 (Unmöglichkeit der Leistungsinanspruchnahme, falls Zugang zum Dienst unverschuldet verunmöglicht wurde)
+  Telekom-/Internetanbieter → UWG Art. 2 (Generalklausel, Treu und Glauben — bei künstlichen Kündigungsbarrieren wie Zwang zur Hotline, blockiertem Online-Zugang oder 2FA-Zirkelschluss ohne Alternative) und, falls die Sachlage eine gezielte Behinderung der Entscheidungsfreiheit oder Kündigung nahelegt, ergänzend UWG Art. 3 Abs. 1 lit. h; OR Art. 62 (ungerechtfertigte Bereicherung — Rückerstattung bei nachweisbarer Nichtnutzung; auch für unbegründete Zusatzgebühren wie SIM-Ersatz während einer unverschuldeten Blockade anwenden, nicht nur für die Grundgebühr); OR Art. 119 NUR sinngemäss/analog zitieren ("analog Art. 119 OR"), da die Norm die Unmöglichkeit der Leistung des Schuldners betrifft, nicht die blosse Nutzungsverhinderung beim Kunden — als direkter Treffer wäre das rechtlich angreifbar; bei Fragen zur Rufnummer-Portierung/Anbieterwechsel: Art. 34–34e FDV (Verordnung über Fernmeldedienste — der abgebende Anbieter darf die Portierung nicht blockieren, sofern der Auftrag vom aufnehmenden Anbieter kommt)
   Behörde → VwVG Art. 50/52, kantonales Verwaltungsrecht
 - Absatz 3: Konkrete Forderung mit Frist ("innert 14 Tagen") und klare Konsequenz
 - Abschluss: "Freundliche Grüsse,"
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const msg = await anthropic.messages.create({
       model: "claude-opus-4-8",
-      max_tokens: 1000,
+      max_tokens: 2000,
       system: systemPrompt,
       messages: [{ role: "user", content: userMessage }],
     });
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const res = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
-      max_tokens: 900,
+      max_tokens: 1800,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user",   content: userMessage },
