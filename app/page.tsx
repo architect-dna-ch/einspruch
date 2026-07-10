@@ -84,6 +84,7 @@ export default function Home() {
   const [purchasedPrem, setPurchasedPrem] = useState(0);
   const [copied, setCopied]             = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
 
   useEffect(() => {
     setFreeUses(getUses(FREE_KEY));
@@ -214,6 +215,21 @@ export default function Home() {
         <button onClick={() => window.print()} className="px-5 py-3 rounded-xl text-sm border border-zinc-200 hover:border-zinc-400 text-zinc-600 transition-colors">
           Drucken / PDF
         </button>
+      </div>
+      <div className="mt-3 flex gap-2 print:hidden">
+        <input
+          type="email"
+          placeholder="E-Mail des Empfängers (optional)"
+          value={recipientEmail}
+          onChange={(e) => setRecipientEmail(e.target.value)}
+          className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors"
+        />
+        <a
+          href={`mailto:${recipientEmail}?subject=${encodeURIComponent(letter.split("\n")[1] || "Einsprache")}&body=${encodeURIComponent(letter)}`}
+          className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white text-center transition-colors ${recipientEmail ? "bg-zinc-900 hover:bg-zinc-700" : "bg-zinc-300 pointer-events-none"}`}
+        >
+          Jetzt senden →
+        </a>
       </div>
       {tier === "free" && remaining === 0 && (
         <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl print:hidden">
