@@ -35,7 +35,16 @@ const RECIPIENTS = [
   { id: "ahv",         label: "📋 AHV / IV / Sozialdienst" },
   { id: "bank",        label: "🏦 Bank / Versicherung" },
   { id: "telekom",     label: "📱 Telekom / Internetanbieter" },
+  { id: "busse",       label: "🚗 Ordnungsbusse" },
+  { id: "kuendigung",  label: "✂️ Vertrag / Abo kündigen" },
+  { id: "versicherung_sach", label: "🛡️ Sachversicherung" },
   { id: "andere",      label: "📝 Andere" },
+];
+
+const LANGUAGES = [
+  { id: "de", label: "Deutsch" },
+  { id: "fr", label: "Français" },
+  { id: "it", label: "Italiano" },
 ];
 
 const EXAMPLE_FREE = `27. Mai 2026
@@ -85,6 +94,7 @@ export default function Home() {
   const [copied, setCopied]             = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
+  const [lang, setLang]                 = useState("de");
 
   useEffect(() => {
     setFreeUses(getUses(FREE_KEY));
@@ -163,7 +173,7 @@ export default function Home() {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipient, situation, goal, premium }),
+        body: JSON.stringify({ recipient, situation, goal, premium, lang }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -250,6 +260,20 @@ export default function Home() {
   if (step === "form") return (
     <main className="max-w-lg mx-auto px-5 py-12">
       <button onClick={() => setStep("landing")} className="text-sm text-zinc-400 hover:text-zinc-600 mb-8 block">← zurück</button>
+
+      <div className="mb-6">
+        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Sprache</label>
+        <div className="grid grid-cols-3 gap-2">
+          {LANGUAGES.map((l) => (
+            <button key={l.id} onClick={() => setLang(l.id)}
+              className={`text-center px-4 py-2.5 rounded-xl text-sm border transition-all ${
+                lang === l.id ? "bg-zinc-900 text-white border-zinc-900" : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-400"
+              }`}>
+              {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="mb-6">
         <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">An wen?</label>
