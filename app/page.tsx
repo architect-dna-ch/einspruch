@@ -104,6 +104,16 @@ export default function Home() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const go = params.get("go");
+    if (go && RECIPIENTS.some((r) => r.id === go)) {
+      setRecipient(go);
+      setStep("form");
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
     const adminToken = params.get("admin");
     if (!adminToken) return;
     window.history.replaceState({}, "", "/"); // strip token from the URL/history immediately

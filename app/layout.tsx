@@ -25,12 +25,26 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["https://einspruch.architect-dna.ch/og.png"] },
   robots: { index: true, follow: true },
   alternates: { canonical: "https://einspruch.architect-dna.ch" },
+  manifest: "/manifest.json",
+  appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Einspruch" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="de" className="h-full">
-      <body className="min-h-full flex flex-col">{children}<Analytics /></body>
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <meta name="theme-color" content="#18181b" />
+      </head>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Analytics />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }`,
+          }}
+        />
+      </body>
     </html>
   );
 }
