@@ -297,6 +297,11 @@ export default function Home() {
             </button>
           ))}
         </div>
+        {recipient === "busse" && (
+          <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 leading-relaxed">
+            ⚠️ Wichtig: Bestreitest du eine Ordnungsbusse und verlierst im ordentlichen Verfahren, kann die Busse höher ausfallen als der ursprüngliche Betrag, plus Verfahrenskosten und ein möglicher Eintrag im Strafregister. Nur einreichen, wenn du wirklich eine begründete Bestreitung hast.
+          </p>
+        )}
       </div>
 
       <div className="mb-4">

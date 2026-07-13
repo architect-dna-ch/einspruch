@@ -23,6 +23,10 @@ export default function Page() {
           body: "Das Ordnungsbussengesetz (OBG) erlaubt es, eine Ordnungsbusse innert Frist zu bestreiten — akzeptierst du sie nicht, geht der Fall ins ordentliche Strafverfahren über, wo der Sachverhalt geprüft wird. Bei Verkehrsregelverletzungen ist zusätzlich das Strassenverkehrsgesetz (SVG) relevant.",
         },
         {
+          heading: "Wichtig: das ordentliche Verfahren kann teurer werden",
+          body: "Die Ordnungsbusse ist bewusst als einfaches, günstiges Verfahren ohne Eintrag im Strafregister konzipiert. Bestreitest du sie und verlierst im ordentlichen Strafverfahren, gilt dieser Schutz nicht mehr: Die Busse kann höher ausfallen als der ursprüngliche Ordnungsbussen-Betrag, es kommen Verfahrenskosten dazu, und ein Schuldspruch kann im Strafregister erscheinen. Eine Einsprache lohnt sich deshalb nur, wenn du wirklich eine begründete Bestreitung hast — nicht einfach, weil die Busse ärgerlich ist.",
+        },
+        {
           heading: "Die Frist",
           body: "In der Regel musst du innert 30 Tagen ab Zustellung reagieren, wenn du die Ordnungsbusse nicht akzeptierst — sonst gilt sie als anerkannt. Die genaue Frist steht auf dem Bussenzettel selbst; sie einzuhalten ist entscheidend, danach ist eine Einsprache meist nicht mehr möglich.",
         },
