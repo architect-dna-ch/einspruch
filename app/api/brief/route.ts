@@ -19,7 +19,7 @@ const RECIPIENTS: Record<string, string> = {
 
 const LANG_NAMES: Record<string, string> = { de: "Deutsch", fr: "Französisch", it: "Italienisch" };
 
-function buildPrompt(recipientLabel: string, today: string, lang: string) {
+function buildPrompt(recipientLabel: string, today: string, lang: string, forceVerfuegung: boolean) {
   const langInstruction = lang === "de"
     ? "Schreibe den gesamten Brief auf Schweizer Hochdeutsch."
     : lang === "fr"
@@ -46,10 +46,16 @@ Format (strikt einhalten):
   Kündigung eines Vertrags/Abos → OR Art. 404 (jederzeitige Kündbarkeit bei Auftragsverhältnissen) oder vertragliche Kündigungsfrist gemäss AGB zitieren falls bekannt; UWG Art. 2 falls der Anbieter die Kündigung durch künstliche Hürden (Hotline-Zwang, kein Online-Kündigungsweg) erschwert
   Sachversicherung → VVG Art. 33 (Deckungsumfang, Auslegung zugunsten Versicherter bei Unklarheiten), VVG Art. 41 (Fälligkeit der Leistung)
   Behörde → VwVG Art. 50/52, kantonales Verwaltungsrecht
-- Absatz 3: Konkrete Forderung mit Frist ("innert 14 Tagen") und klare Konsequenz
+- Absatz 3: Konkrete Forderung mit Frist ("innert 14 Tagen") und klare Konsequenz${forceVerfuegung ? " — siehe VERFÜGUNGS-MODUS unten, ersetzt die normale Forderung" : ""}
 - Abschluss: passend zur Sprache (z.B. "Freundliche Grüsse," / "Meilleures salutations," / "Cordiali saluti,")
 - Letzte zwei Zeilen exakt: [NAME]\n[ADRESSE]
-
+${forceVerfuegung ? `
+VERFÜGUNGS-MODUS (aktiv): Der Empfänger hat den Antrag bisher nur mündlich oder gar nicht formell beantwortet. Ziel dieses Briefs ist NICHT primär die inhaltliche Forderung, sondern die Behörde zu einer anfechtbaren Verfügung zu zwingen. Ersetze Absatz 3 durch:
+  - Feststellung, dass bisher keine schriftliche, begründete Verfügung mit Rechtsmittelbelehrung vorliegt (ein mündlicher oder formloser Bescheid ist rechtlich kein Entscheid und löst keine Beschwerdefrist aus)
+  - Ausdrückliches Verlangen: eine schriftliche, begründete, anfechtbare Verfügung mit Rechtsmittelbelehrung gemäss VwVG Art. 5 und Art. 35 (bzw. kantonales Verwaltungsverfahrensgesetz) zu erlassen
+  - Frist von 14 Tagen zum Erlass dieser Verfügung
+  - Konsequenz: Bleibt die Behörde untätig, wird Rechtsverweigerungs-/Rechtsverzögerungsbeschwerde gemäss VwVG Art. 46a bei der zuständigen Aufsichtsbehörde eingereicht
+  Der Betreff muss diesen Zweck erkennbar machen (z.B. "Verlangen einer anfechtbaren Verfügung" statt "Einsprache").` : ""}
 REGELN: Kein Markdown, keine Sternchen, nur reiner Text. Bestimmt und sachlich. NUR den Brief ausgeben, in der oben angegebenen Sprache.`;
 }
 
@@ -59,7 +65,7 @@ export async function POST(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   if (!ALLOWED.includes(origin)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
-  const { recipient, situation, goal, premium, lang } = await req.json();
+  const { recipient, situation, goal, premium, lang, forceVerfuegung } = await req.json();
   if (!situation?.trim() || !goal?.trim()) {
     return Response.json({ error: "Missing fields" }, { status: 400 });
   }
@@ -71,7 +77,7 @@ export async function POST(req: Request) {
     outputLang === "fr" ? "fr-CH" : outputLang === "it" ? "it-CH" : "de-CH",
     { day: "2-digit", month: "long", year: "numeric" }
   );
-  const systemPrompt = buildPrompt(recipientLabel, today, outputLang);
+  const systemPrompt = buildPrompt(recipientLabel, today, outputLang, !!forceVerfuegung && ["gemeinde", "ahv", "andere"].includes(recipient));
   const userMessage = `Situation: ${situation}\n\nForderung: ${goal}`;
 
   let letter = "";

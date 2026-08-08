@@ -95,6 +95,7 @@ export default function Home() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState("");
   const [lang, setLang]                 = useState("de");
+  const [forceVerfuegung, setForceVerfuegung] = useState(false);
 
   useEffect(() => {
     setFreeUses(getUses(FREE_KEY));
@@ -183,7 +184,7 @@ export default function Home() {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipient, situation, goal, premium, lang }),
+        body: JSON.stringify({ recipient, situation, goal, premium, lang, forceVerfuegung }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -301,6 +302,14 @@ export default function Home() {
           <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 leading-relaxed">
             ⚠️ Wichtig: Bestreitest du eine Ordnungsbusse und verlierst im ordentlichen Verfahren, kann die Busse höher ausfallen als der ursprüngliche Betrag, plus Verfahrenskosten und ein möglicher Eintrag im Strafregister. Nur einreichen, wenn du wirklich eine begründete Bestreitung hast.
           </p>
+        )}
+        {["gemeinde", "ahv", "andere"].includes(recipient) && (
+          <label className="mt-3 flex items-start gap-2.5 text-xs text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 leading-relaxed cursor-pointer">
+            <input type="checkbox" className="mt-0.5" checked={forceVerfuegung} onChange={(e) => setForceVerfuegung(e.target.checked)} />
+            <span>
+              <strong className="text-zinc-800">Anfechtbare Verfügung erzwingen</strong> — nutzen, wenn du bisher nur ein mündliches oder gar kein Nein erhalten hast. Der Brief verlangt statt einer Antwort einen schriftlichen, begründeten Entscheid mit Rechtsmittelbelehrung (VwVG Art. 5/35) — erst damit läuft eine Beschwerdefrist.
+            </span>
+          </label>
         )}
       </div>
 
