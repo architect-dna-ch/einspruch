@@ -35,7 +35,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="de" className="h-full">
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <meta name="theme-color" content="#18181b" />
+        <meta name="theme-color" content="#EDE6D6" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)" />
       </head>
       <body className="min-h-full flex flex-col">
         <WorldBackdrop />

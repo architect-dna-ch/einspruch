@@ -416,12 +416,12 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="max-w-2xl mx-auto mb-6">
+      <div className="mx-auto mb-4" style={{ maxWidth: "min(78vh, 100%)" }}>
         <GlobeNav onOpenBrief={() => { setWiz(0); setStep("form"); }} />
       </div>
 
-      <p className="text-center text-xs mb-14" style={{ color: "var(--ink-3)" }}>
-        50 Briefe kostenlos · Kein Konto nötig
+      <p className="text-center coords text-xs mb-10">
+        Drag to turn · click opens the place
       </p>
 
     </main>
