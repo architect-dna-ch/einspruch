@@ -480,6 +480,25 @@ export default function Home() {
         </button>
         <p className="text-xs text-zinc-300 mt-6">DSGVO-konform · Name & Adresse bleiben auf deinem Gerät · Kein Konto nötig</p>
       </div>
+
+      {/* Tools */}
+      <div className="mb-8">
+        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4 text-center">Bevor du schreibst</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <a href="/wegweiser" className="p-5 rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-colors">
+            <div className="text-sm font-semibold text-zinc-900 mb-1">🧭 Wegweiser</div>
+            <div className="text-xs text-zinc-500 leading-relaxed">Welche Behörde, welche Aufsicht, welcher nächste Schritt — nach Bereich.</div>
+          </a>
+          <a href="/fristenrechner" className="p-5 rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-colors">
+            <div className="text-sm font-semibold text-zinc-900 mb-1">⏱️ Fristenrechner</div>
+            <div className="text-xs text-zinc-500 leading-relaxed">Datum der Verfügung rein, Ablauf der Beschwerdefrist raus.</div>
+          </a>
+          <a href="/belegmappe" className="p-5 rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-colors">
+            <div className="text-sm font-semibold text-zinc-900 mb-1">📁 Belegmappe</div>
+            <div className="text-xs text-zinc-500 leading-relaxed">Wie du Beweise sammelst, bevor du sie im Streitfall brauchst.</div>
+          </a>
+        </div>
+      </div>
     </main>
   );
 }

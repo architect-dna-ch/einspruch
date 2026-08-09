@@ -37,7 +37,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#18181b" />
       </head>
       <body className="min-h-full flex flex-col">
-        {children}
+        <div className="flex-1">{children}</div>
+        <footer className="print:hidden text-center text-xs text-zinc-400 px-5 py-6 border-t border-zinc-100 mt-4">
+          Einspruch ersetzt keine Rechtsberatung — es hilft dir, dein eigenes Anliegen selbst und formell korrekt vorzubringen.
+          Bei komplexen Fällen: {" "}
+          <a href="https://www.caritas.ch/de/was-wir-tun/schweiz/sozial-und-schuldenberatung.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-600">Caritas</a>,{" "}
+          <a href="https://www.sozialinfo.ch" target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-600">sozialinfo.ch</a> oder die{" "}
+          <a href="https://www.google.com/search?q=kantonale+unentgeltliche+rechtsberatung" target="_blank" rel="noopener noreferrer" className="underline hover:text-zinc-600">kantonale Rechtsberatung</a>.
+        </footer>
         <Analytics />
         <script
           dangerouslySetInnerHTML={{
