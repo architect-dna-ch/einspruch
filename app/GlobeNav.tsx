@@ -141,7 +141,7 @@ export default function GlobeNav({ onOpenBrief }: { onOpenBrief: () => void }) {
           if (z < -0.15) return null;                 // behind the globe
           const near = (z + 1) / 2;
           const on = hover === p.id;
-          const r = 7 + near * 2;
+          const r = 11 + near * 3;
           return (
             <g
               key={p.id}
@@ -155,13 +155,14 @@ export default function GlobeNav({ onOpenBrief }: { onOpenBrief: () => void }) {
               aria-label={p.label}
               onKeyDown={(e) => { if (e.key === "Enter") go(p); }}
             >
+              <circle className="gn-hit" cx={X} cy={Y} r={r + 10} />
               <circle className={`gn-halo${on ? " on" : ""}`} cx={X} cy={Y} r={r + 4} />
               <circle className={`gn-dot${on ? " on" : ""}`} cx={X} cy={Y} r={r} />
-              <text className="gn-icon" x={X} y={Y + 3.2} textAnchor="middle">{p.icon}</text>
+              <text className="gn-icon" x={X} y={Y + 4} textAnchor="middle">{p.icon}</text>
               {near > 0.42 && (
                 <>
-                  <text className="gn-label" x={X} y={Y + r + 8} textAnchor="middle">{p.label}</text>
-                  {on && <text className="gn-sub" x={X} y={Y + r + 14} textAnchor="middle">{p.sub}</text>}
+                  <text className="gn-label" x={X} y={Y + r + 9} textAnchor="middle">{p.label}</text>
+                  {on && <text className="gn-sub" x={X} y={Y + r + 16} textAnchor="middle">{p.sub}</text>}
                 </>
               )}
             </g>

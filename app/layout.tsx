@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
-import WorldBackdrop from "./WorldBackdrop";
 
 export const metadata: Metadata = {
   title: "Einspruch — Einsprache Brief Vorlage Schweiz | KK, Vermieter, Behörde",
@@ -39,7 +38,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#0B1220" media="(prefers-color-scheme: dark)" />
       </head>
       <body className="min-h-full flex flex-col">
-        <WorldBackdrop />
         <div className="flex-1 page">{children}</div>
         <footer className="page print:hidden text-center text-xs px-5 py-6 mt-4" style={{ color: "var(--ink-3)", borderTop: "1px solid var(--rule)" }}>
           Keine Rechtsberatung — Selbsthilfe. Beratung:{" "}

@@ -51,22 +51,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── the world behind every page ──
-   A slowly turning wireframe globe, fixed behind the content. It is decoration
-   that carries the product's thesis, so it sits in the ground layer and never
-   catches a pointer. */
-.worldbg {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  display: grid; place-items: center; overflow: hidden;
-}
-.worldbg svg { width: min(150vh, 150vw); height: auto; opacity: .5; }
-.worldbg .sphere { fill: color-mix(in oklab, var(--sea-600) 40%, transparent); stroke: var(--rule); stroke-width: .5; }
-.worldbg .grat { fill: none; stroke: var(--grid); stroke-width: .4; }
-.worldbg .grat.major { stroke: var(--grid-major); stroke-width: .7; }
-.worldbg .spin { transform-origin: 100px 100px; animation: turn 240s linear infinite; }
-@keyframes turn { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .worldbg .spin { animation: none; } }
-
 .page { position: relative; z-index: 1; }
 
 /* ── instruments ── */
@@ -130,6 +114,7 @@ body {
 }
 .gn-grat { fill: none; stroke: var(--grid); stroke-width: .35; }
 .gn-node { cursor: pointer; }
+.gn-hit { fill: transparent; }   /* generous target, invisible */
 .gn-halo { fill: none; stroke: var(--brass); stroke-width: .6; opacity: .35; transition: opacity .18s; }
 .gn-halo.on { opacity: 1; stroke-width: 1; }
 .gn-dot {
@@ -137,13 +122,13 @@ body {
   stroke: var(--brass); stroke-width: .7; transition: fill .18s;
 }
 .gn-dot.on { fill: color-mix(in oklab, var(--brass) 26%, var(--sea-700)); }
-.gn-icon { font-size: 7px; pointer-events: none; }
+.gn-icon { font-size: 11px; pointer-events: none; }
 .gn-label {
-  font-family: var(--body); font-size: 4.6px; font-weight: 600;
+  font-family: var(--body); font-size: 6px; font-weight: 600;
   fill: var(--ink); pointer-events: none;
 }
 .gn-sub {
-  font-family: var(--mono); font-size: 3.4px; fill: var(--brass); pointer-events: none;
+  font-family: var(--mono); font-size: 4.2px; fill: var(--brass); pointer-events: none;
 }
 
 @keyframes fadeUp {
@@ -154,6 +139,5 @@ body {
 
 @media print {
   body { background: white; color: #000; }
-  .worldbg { display: none; }
   pre  { font-family: Georgia, serif; font-size: 12pt; line-height: 1.8; color: #000; }
 }
