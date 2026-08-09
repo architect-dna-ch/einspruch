@@ -11,28 +11,28 @@ export default function Page() {
   return (
     <GuidePage
       kicker="Vermieter"
-      title="Der Vermieter gibt die Kaution nicht zurück — was jetzt?"
-      intro="Ausgezogen, Wohnung übergeben, und die Kaution kommt einfach nicht zurück — oder der Vermieter behält sie ohne nachvollziehbaren Grund ein. Das ist einer der häufigsten Mieter-Streitpunkte in der Schweiz, und die Fristen sind klar geregelt."
+      title="Kaution bleibt weg?"
+      intro="Ausgezogen, übergeben — und die Kaution kommt nicht zurück. Einer der häufigsten Mietstreitpunkte, und die Fristen sind klar."
       sections={[
         {
-          heading: "Was das Gesetz sagt",
-          body: "Gemäss OR Art. 257e muss die Mietkaution auf einem gesperrten Bankkonto auf den Namen des Mieters hinterlegt werden. Erhebt der Vermieter innert einem Jahr nach Auszug keine Ansprüche (z.B. durch Klage oder Betreibung), ist die Kaution freizugeben. Der Vermieter kann nicht einfach unbegrenzt lange zuwarten oder Beträge ohne Begründung einbehalten.",
+          heading: "Die Grundlage",
+          body: "OR Art. 257e: Die Kaution liegt auf einem gesperrten Konto auf deinen Namen.\n\nErhebt der Vermieter innert einem Jahr nach Auszug keine Ansprüche, ist sie freizugeben.",
         },
         {
-          heading: "Wann ein Einbehalt gerechtfertigt ist",
-          body: "Nur bei nachweisbaren, über die normale Abnutzung hinausgehenden Schäden, offenen Mietzinsen oder Nebenkostenabrechnungen. Normale Gebrauchsspuren (leichte Abnützung von Boden, Wänden) gelten nicht als Schaden — dafür ist die Kaution nicht da.",
+          heading: "Wann Einbehalt gilt",
+          body: "Nur bei nachweisbaren Schäden über die normale Abnutzung hinaus, offenen Mietzinsen oder Nebenkosten.\n\nGebrauchsspuren sind kein Schaden.",
         },
         {
           heading: "Die Frist",
-          body: "Ein Jahr ab Rückgabe der Mietsache — danach hast du gemäss OR Art. 257e einen klaren Anspruch auf Rückzahlung, wenn der Vermieter in dieser Zeit nichts unternommen hat. Auch vorher lohnt sich eine schriftliche Fristsetzung, sobald der Auszug erfolgt und keine Mängel dokumentiert wurden.",
+          body: "Ein Jahr ab Rückgabe — danach klarer Anspruch, wenn nichts unternommen wurde.\n\nSchriftliche Fristsetzung lohnt sich schon früher.",
         },
         {
-          heading: "Was du konkret brauchst",
-          body: "Ein schriftliches Schreiben mit Bezug auf das Abnahmeprotokoll (falls vorhanden), Verweis auf OR Art. 257e, und eine klare Frist zur Freigabe der Kaution beim Bankinstitut. Falls der Vermieter nicht reagiert, kann die Bank nach Fristablauf teilweise auch direkt kontaktiert werden.",
+          heading: "Was du brauchst",
+          body: "Bezug aufs Abnahmeprotokoll · Verweis auf OR Art. 257e · klare Frist zur Freigabe bei der Bank.",
         },
       ]}
       ctaGo="vermieter"
-      ctaLabel="Brief an den Vermieter erstellen"
+      ctaLabel="Brief erstellen"
     />
   );
 }

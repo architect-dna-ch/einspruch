@@ -11,32 +11,32 @@ export default function Page() {
   return (
     <GuidePage
       kicker="Ordnungsbusse"
-      title="Ordnungsbusse zu Unrecht erhalten — kannst du Einsprache erheben?"
-      intro="Die meisten Leute zahlen eine Ordnungsbusse einfach, weil der Aufwand für eine Einsprache übertrieben wirkt. Bei einer klar bestreitbaren Busse — unklare Signalisation, ein medizinischer Notfall, ein Irrtum der Behörde — lohnt sich ein kurzer, formeller Brief trotzdem."
+      title="Busse zu Unrecht?"
+      intro="Die meisten zahlen, weil der Aufwand grösser wirkt als die Busse. Bei einer klar bestreitbaren Busse lohnt sich ein kurzer, formeller Brief trotzdem."
       sections={[
         {
-          heading: "Wann eine Einsprache Sinn ergibt",
-          body: "Nicht bei jeder Busse — wenn der Sachverhalt tatsächlich stimmt (du bist wirklich zu schnell gefahren), bringt eine Einsprache nichts. Sinnvoll ist sie, wenn die Signalisation nicht sichtbar/eindeutig war, ein Notfall vorlag, die Busse fälschlicherweise ausgestellt wurde, oder ein Formfehler vorliegt.",
+          heading: "Wann es Sinn ergibt",
+          body: "Signalisation unklar · Notfall · falsch ausgestellt · Formfehler.\n\nNicht, wenn der Sachverhalt stimmt.",
         },
         {
-          heading: "Was das Gesetz sagt",
-          body: "Das Ordnungsbussengesetz (OBG) erlaubt es, eine Ordnungsbusse innert Frist zu bestreiten — akzeptierst du sie nicht, geht der Fall ins ordentliche Strafverfahren über, wo der Sachverhalt geprüft wird. Bei Verkehrsregelverletzungen ist zusätzlich das Strassenverkehrsgesetz (SVG) relevant.",
+          heading: "Die Grundlage",
+          body: "OBG erlaubt das Bestreiten innert Frist. Akzeptierst du nicht, geht es ins ordentliche Strafverfahren — dort wird der Sachverhalt geprüft.",
         },
         {
-          heading: "Wichtig: das ordentliche Verfahren kann teurer werden",
-          body: "Die Ordnungsbusse ist bewusst als einfaches, günstiges Verfahren ohne Eintrag im Strafregister konzipiert. Bestreitest du sie und verlierst im ordentlichen Strafverfahren, gilt dieser Schutz nicht mehr: Die Busse kann höher ausfallen als der ursprüngliche Ordnungsbussen-Betrag, es kommen Verfahrenskosten dazu, und ein Schuldspruch kann im Strafregister erscheinen. Eine Einsprache lohnt sich deshalb nur, wenn du wirklich eine begründete Bestreitung hast — nicht einfach, weil die Busse ärgerlich ist.",
+          heading: "Das Risiko",
+          body: "Verlierst du dort, entfällt der Schutz der Ordnungsbusse: höherer Betrag, Verfahrenskosten, möglicher Registereintrag.\n\nNur mit begründeter Bestreitung einreichen.",
         },
         {
           heading: "Die Frist",
-          body: "In der Regel musst du innert 30 Tagen ab Zustellung reagieren, wenn du die Ordnungsbusse nicht akzeptierst — sonst gilt sie als anerkannt. Die genaue Frist steht auf dem Bussenzettel selbst; sie einzuhalten ist entscheidend, danach ist eine Einsprache meist nicht mehr möglich.",
+          body: "In der Regel 30 Tage ab Zustellung. Danach gilt die Busse als anerkannt.\n\nDie genaue Frist steht auf dem Bussenzettel.",
         },
         {
-          heading: "Was du konkret brauchst",
-          body: "Ein sachliches Schreiben, das den Sachverhalt aus deiner Sicht schildert (mit Beweisen falls vorhanden, z.B. Fotos der Signalisation), einen Verweis auf die relevanten Bestimmungen, und die klare Aussage, dass du die Busse nicht akzeptierst und um Überprüfung bittest.",
+          heading: "Was du brauchst",
+          body: "Sachverhalt aus deiner Sicht · Beweise (z.B. Foto der Signalisation) · Verweis auf die Bestimmungen · die klare Aussage, dass du nicht akzeptierst.",
         },
       ]}
       ctaGo="busse"
-      ctaLabel="Einsprache gegen die Busse erstellen"
+      ctaLabel="Einsprache erstellen"
     />
   );
 }
