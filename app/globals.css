@@ -104,31 +104,39 @@ body {
 
 .coords { font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--ink-3); }
 
-/* ── globe navigation ── */
+/* ── globe navigation ──
+   Values lifted from globus/app.html so the two globes render alike. */
 .globenav { touch-action: none; cursor: grab; user-select: none; }
 .globenav:active { cursor: grabbing; }
 .globenav svg { width: 100%; height: auto; display: block; overflow: visible; }
-.gn-sphere {
-  fill: color-mix(in oklab, var(--sea-700) 55%, transparent);
-  stroke: var(--rule); stroke-width: .4;
-}
-.gn-grat { fill: none; stroke: var(--grid); stroke-width: .35; }
+
+.gn-grat { fill: none; stroke: var(--grid); stroke-width: .2; }
+.gn-grat.major { stroke: var(--grid-major); stroke-width: .26; }
+.gn-grat.far { stroke: var(--grid); opacity: .30; stroke-dasharray: .4 .8; }
+.gn-grat.major.far { opacity: .34; }
+.gn-glass { fill: var(--grid-major); opacity: .045; }
+
 .gn-node { cursor: pointer; }
-.gn-hit { fill: transparent; }   /* generous target, invisible */
-.gn-halo { fill: none; stroke: var(--brass); stroke-width: .6; opacity: .35; transition: opacity .18s; }
-.gn-halo.on { opacity: 1; stroke-width: 1; }
-.gn-dot {
-  fill: color-mix(in oklab, var(--sea-800) 88%, transparent);
-  stroke: var(--brass); stroke-width: .7; transition: fill .18s;
-}
-.gn-dot.on { fill: color-mix(in oklab, var(--brass) 26%, var(--sea-700)); }
-.gn-icon { font-size: 11px; pointer-events: none; }
+.gn-node:focus { outline: none; }
+.gn-hit { fill: transparent; }
+.gn-halo { fill: none; stroke: var(--brass); stroke-width: .4; opacity: 0; transition: opacity .14s; }
+.gn-node:hover .gn-halo, .gn-node:focus-visible .gn-halo, .gn-halo.on { opacity: .85; }
+.gn-dot { fill: var(--brass); fill-opacity: .28; stroke: var(--brass); stroke-width: .35; }
+
+.gn-icon { text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .gn-label {
-  font-family: var(--body); font-size: 6px; font-weight: 600;
-  fill: var(--ink); pointer-events: none;
+  text-anchor: middle; font-family: var(--body); font-weight: 600; fill: var(--ink);
+  paint-order: stroke; stroke: var(--sea-900); stroke-width: .63px; stroke-linejoin: round;
+  pointer-events: none;
 }
 .gn-sub {
-  font-family: var(--mono); font-size: 4.2px; fill: var(--brass); pointer-events: none;
+  text-anchor: middle; font-family: var(--mono); fill: var(--ink-3);
+  paint-order: stroke; stroke: var(--sea-900); stroke-width: .63px; stroke-linejoin: round;
+  pointer-events: none;
+}
+.gn-pole {
+  text-anchor: middle; font-family: var(--mono); font-size: 1.77px; fill: var(--brass);
+  opacity: .7; paint-order: stroke; stroke: var(--sea-900); stroke-width: .6px;
 }
 
 @keyframes fadeUp {
