@@ -55,60 +55,48 @@ const AREAS: Area[] = [
 ];
 
 export default function WegweiserClient() {
-  const [openId, setOpenId] = useState<string | null>(AREAS[0].id);
+  const [openId, setOpenId] = useState<string>(AREAS[0].id);
+  const active = AREAS.find((a) => a.id === openId);
 
   return (
     <main className="max-w-2xl mx-auto px-5 py-14">
-      <a href="/" className="text-sm text-zinc-400 hover:text-zinc-600 mb-8 block">← Einspruch</a>
-      <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-3">Wegweiser</p>
-      <h1 className="text-3xl font-bold text-zinc-900 mb-4 leading-tight">Welche Behörde? Welche Aufsicht? Welcher nächste Schritt?</h1>
-      <p className="text-zinc-600 text-[15px] leading-relaxed mb-8">
-        Wähle deinen Bereich. Die Zuständigkeiten sind kantonal teils unterschiedlich benannt — das hier ist die grundsätzliche Kette,
-        keine Rechtsberatung für deinen konkreten Kanton.
-      </p>
+      <a href="/" className="text-sm mb-8 block" style={{ color: "var(--ink-3)" }}>← Einspruch</a>
+      <p className="kicker mb-3">Wegweiser</p>
+      <h1 className="display text-4xl mb-3" style={{ color: "var(--ink)" }}>
+        Wer ist <em>zuständig</em>?
+      </h1>
+      <p className="text-sm mb-8" style={{ color: "var(--ink-3)" }}>Wähle deinen Bereich — Stelle, Aufsicht, nächster Schritt.</p>
 
-      <div className="space-y-3">
-        {AREAS.map((a) => {
-          const open = openId === a.id;
-          return (
-            <div key={a.id} className="border border-zinc-200 rounded-2xl overflow-hidden">
-              <button
-                onClick={() => setOpenId(open ? null : a.id)}
-                className="w-full text-left px-5 py-4 flex items-center justify-between bg-white hover:bg-zinc-50 transition-colors"
-              >
-                <span className="font-semibold text-zinc-900 text-sm">{a.label}</span>
-                <span className="text-zinc-400 text-sm">{open ? "−" : "+"}</span>
-              </button>
-              {open && (
-                <div className="px-5 pb-5 pt-1 bg-white space-y-4">
-                  <div>
-                    <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Zuständige Stelle</div>
-                    <p className="text-sm text-zinc-700 leading-relaxed">{a.authority}</p>
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Aufsicht / Beschwerdeinstanz</div>
-                    <p className="text-sm text-zinc-700 leading-relaxed">{a.oversight}</p>
-                  </div>
-                  <div>
-                    <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Nächster Schritt</div>
-                    <p className="text-sm text-zinc-700 leading-relaxed">{a.nextStep}</p>
-                  </div>
-                  <a
-                    href={`/?go=${a.recipientGo}`}
-                    className="inline-block mt-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-colors"
-                  >
-                    Brief für diesen Bereich erstellen →
-                  </a>
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div className="grid grid-cols-2 gap-2 mb-6">
+        {AREAS.map((a) => (
+          <button key={a.id} onClick={() => setOpenId(a.id)} className={`tile px-4 py-3.5 ${openId === a.id ? "on" : ""}`}>
+            <div className="text-2xl mb-1">{a.label.split(" ")[0]}</div>
+            <div className="t text-sm">{a.label.split(" ").slice(1).join(" ")}</div>
+          </button>
+        ))}
       </div>
 
-      <div className="mt-10 flex gap-3">
-        <a href="/fristenrechner" className="flex-1 text-center px-4 py-3 rounded-xl text-sm border border-zinc-200 hover:border-zinc-400 text-zinc-600 transition-colors">Fristenrechner →</a>
-        <a href="/belegmappe" className="flex-1 text-center px-4 py-3 rounded-xl text-sm border border-zinc-200 hover:border-zinc-400 text-zinc-600 transition-colors">Belegmappe →</a>
+      {active && (
+        <div className="card p-6 space-y-4 mb-6">
+          <div>
+            <p className="kicker mb-1">Zuständige Stelle</p>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.authority}</p>
+          </div>
+          <div>
+            <p className="kicker mb-1">Aufsicht / Beschwerdeinstanz</p>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.oversight}</p>
+          </div>
+          <div>
+            <p className="kicker mb-1">Nächster Schritt</p>
+            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.nextStep}</p>
+          </div>
+          <a href={`/?go=${active.recipientGo}`} className="btn btn-primary px-6 py-3 text-sm">Brief erstellen →</a>
+        </div>
+      )}
+
+      <div className="flex gap-2">
+        <a href="/fristenrechner" className="btn flex-1 text-center px-4 py-3 text-sm">⏱️ Fristenrechner →</a>
+        <a href="/belegmappe" className="btn flex-1 text-center px-4 py-3 text-sm">📁 Belegmappe →</a>
       </div>
     </main>
   );

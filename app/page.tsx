@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import GlobeNav from "./GlobeNav";
 
 const FREE_LIMIT    = 50;
 const PREMIUM_LIMIT = 3;
@@ -47,35 +48,6 @@ const LANGUAGES = [
   { id: "it", label: "Italiano" },
 ];
 
-const EXAMPLE_FREE = `27. Mai 2026
-Einsprache gegen Leistungsablehnung
-
-Sehr geehrte Damen und Herren,
-
-Am 15. Mai 2026 suchte ich das Citynotfall Zürich aufgrund eines medizinischen Notfalls auf. Die Kosten sollten gemäss Auskunft der Mitarbeitenden über die obligatorische Grundversicherung abgerechnet werden. Nun habe ich eine Rechnung erhalten, die nicht korrekt über meine Krankenkasse abgerechnet wurde.
-
-Gemäss KVG Art. 25 hat die obligatorische Krankenpflegeversicherung die Kosten für medizinisch notwendige ambulante Behandlungen zu übernehmen. Da ich nicht unfallversichert bin, ist die Grundversicherung als alleiniger Kostenträger zuständig. Die vorliegende Rechnung widerspricht diesen Vorgaben.
-
-Ich fordere Sie auf, die Rechnung korrekt über meine Grundversicherung abzurechnen innert 14 Tagen. Andernfalls werde ich eine Beschwerde einreichen.
-
-Freundliche Grüsse,
-[Ihr Name]
-[Ihre Adresse]`;
-
-const EXAMPLE_PREMIUM = `27. Mai 2026
-Einsprache gegen fehlerhafte Rechnungsstellung — Citynotfall Zürich, 15. Mai 2026
-
-Sehr geehrte Damen und Herren,
-
-Am 15. Mai 2026 suchte ich das Citynotfall Zürich aufgrund eines akuten medizinischen Notfalls auf. Die anwesenden Mitarbeitenden bestätigten ausdrücklich, dass die Behandlungskosten über die obligatorische Grundversicherung abgerechnet werden. Die mir nun vorliegende Rechnung weicht von dieser Zusicherung ab und entspricht nicht den gesetzlich vorgesehenen Tarifen.
-
-Gemäss KVG Art. 25 Abs. 1 übernimmt die obligatorische Krankenpflegeversicherung die Kosten für Leistungen, die der Diagnose oder Behandlung einer Krankheit dienen. Da ich zum Zeitpunkt der Behandlung nicht unfallversichert war, greift gemäss KVG Art. 1a Abs. 2 lit. b ausschliesslich die Grundversicherung als Kostenträgerin. KVV Art. 49 schreibt vor, dass ambulante Spitalleistungen nach den kantonal genehmigten Tarifen abzurechnen sind. Die vorliegende Rechnung verstösst gegen diese Bestimmungen.
-
-Ich fordere Sie auf, die Rechnung vom 15. Mai 2026 auf Basis der geltenden KVG-Tarife neu auszustellen und die vollständige Kostenübernahme innert 14 Tagen schriftlich zu bestätigen. Sollten Sie dieser Aufforderung nicht fristgerecht nachkommen, behalte ich mir vor, gemäss ATSG Art. 52 formell Einsprache zu erheben und die kantonale Aufsichtsbehörde für Krankenversicherungen einzuschalten.
-
-Freundliche Grüsse,
-[Ihr Name]
-[Ihre Adresse]`;
 
 export default function Home() {
   const [step, setStep]             = useState<"landing" | "form" | "result" | "paywall">("landing");
@@ -96,6 +68,7 @@ export default function Home() {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [lang, setLang]                 = useState("de");
   const [forceVerfuegung, setForceVerfuegung] = useState(false);
+  const [wiz, setWiz] = useState(0);       // one question per screen
 
   useEffect(() => {
     setFreeUses(getUses(FREE_KEY));
@@ -220,20 +193,20 @@ export default function Home() {
   if (step === "result") return (
     <main className="max-w-2xl mx-auto px-5 py-12 print:p-0 print:max-w-none">
       <div className="flex items-center gap-3 mb-6 print:hidden">
-        <button onClick={() => { setStep("form"); setLetter(""); }} className="text-sm text-zinc-400 hover:text-zinc-600 transition-colors">← Neu</button>
-        <span className="text-zinc-300">|</span>
+        <button onClick={() => { setStep("form"); setLetter(""); }} className="text-sm  transition-colors">← Neu</button>
+        <span className="">|</span>
         {tier === "premium"
-          ? <span className="text-xs bg-amber-100 text-amber-700 font-semibold px-2 py-0.5 rounded-full">✦ Premium — Claude</span>
-          : <span className="text-sm text-zinc-500">Kostenloser Brief (Groq)</span>}
+          ? <span className="text-xs kicker font-semibold px-2 py-0.5 rounded-full">✦ Premium — Claude</span>
+          : <span className="text-sm ">Kostenloser Brief (Groq)</span>}
       </div>
-      <div className="bg-white border border-zinc-200 rounded-2xl p-10 shadow-sm mb-6 print:shadow-none print:border-none print:rounded-none print:p-0">
-        <pre className="whitespace-pre-wrap text-[14.5px] text-zinc-800 leading-[1.8] font-serif">{letter}</pre>
+      <div className="card p-10 shadow-sm mb-6 print:shadow-none print:border-none print:rounded-none print:p-0">
+        <pre className="whitespace-pre-wrap text-[14.5px]  leading-[1.8] font-serif">{letter}</pre>
       </div>
       <div className="flex gap-3 print:hidden">
-        <button onClick={copy} className="flex-1 py-3 rounded-xl font-semibold text-sm bg-zinc-900 hover:bg-zinc-700 text-white transition-colors">
+        <button onClick={copy} className="flex-1 py-3 rounded-xl font-semibold text-sm btn btn-primary transition-colors">
           {copied ? "✓ Kopiert!" : "Brief kopieren"}
         </button>
-        <button onClick={() => window.print()} className="px-5 py-3 rounded-xl text-sm border border-zinc-200 hover:border-zinc-400 text-zinc-600 transition-colors">
+        <button onClick={() => window.print()} className="px-5 py-3 rounded-xl text-sm    transition-colors">
           Drucken / PDF
         </button>
       </div>
@@ -243,19 +216,19 @@ export default function Home() {
           placeholder="E-Mail des Empfängers (optional)"
           value={recipientEmail}
           onChange={(e) => setRecipientEmail(e.target.value)}
-          className="flex-1 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors"
+          className="flex-1 field px-4 py-2.5 text-sm  placeholder:text-zinc-400 outline-none  transition-colors"
         />
         <a
           href={`mailto:${recipientEmail}?subject=${encodeURIComponent(letter.split("\n")[1] || "Einsprache")}&body=${encodeURIComponent(letter)}`}
-          className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-white text-center transition-colors ${recipientEmail ? "bg-zinc-900 hover:bg-zinc-700" : "bg-zinc-300 pointer-events-none"}`}
+          className={`px-5 py-2.5 rounded-xl text-sm font-semibold text-center transition-colors ${recipientEmail ? "btn btn-primary" : "btn pointer-events-none opacity-50"}`}
         >
           Jetzt senden →
         </a>
       </div>
       {tier === "free" && remaining === 0 && (
-        <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl print:hidden">
-          <p className="text-sm text-amber-800 font-medium">✦ Premium: bessere Gesetzesreferenzen mit Claude AI</p>
-          <button onClick={startCheckout} disabled={checkoutLoading} className="text-xs text-amber-700 underline">{checkoutLoading ? "Weiterleitung…" : "10 Briefe freischalten — CHF 4.90"}</button>
+        <div className="mt-4 p-4 card print:hidden">
+          <p className="text-sm font-medium">✦ Premium: bessere Gesetzesreferenzen mit Claude AI</p>
+          <button onClick={startCheckout} disabled={checkoutLoading} className="text-xs underline">{checkoutLoading ? "Weiterleitung…" : "10 Briefe freischalten — CHF 4.90"}</button>
         </div>
       )}
       {tier === "free" && remaining > 0 && (
@@ -267,238 +240,190 @@ export default function Home() {
     </main>
   );
 
-  // ── FORM ──
-  if (step === "form") return (
-    <main className="max-w-lg mx-auto px-5 py-12">
-      <button onClick={() => setStep("landing")} className="text-sm text-zinc-400 hover:text-zinc-600 mb-8 block">← zurück</button>
+  // ── FORM (one question per screen) ──
+  const STEPS = ["An wen?", "Was ist passiert?", "Was willst du erreichen?", "Wer bist du?", "Fertig"];
 
-      <div className="mb-6">
-        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Sprache</label>
-        <div className="grid grid-cols-3 gap-2">
-          {LANGUAGES.map((l) => (
-            <button key={l.id} onClick={() => setLang(l.id)}
-              className={`text-center px-4 py-2.5 rounded-xl text-sm border transition-all ${
-                lang === l.id ? "bg-zinc-900 text-white border-zinc-900" : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-400"
-              }`}>
-              {l.label}
-            </button>
-          ))}
-        </div>
-      </div>
+  if (step === "form") {
+    const canNext =
+      wiz === 0 ? !!recipient :
+      wiz === 1 ? !!situation.trim() :
+      wiz === 2 ? !!goal.trim() :
+      true;
 
-      <div className="mb-6">
-        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">An wen?</label>
-        <div className="grid grid-cols-2 gap-2">
-          {RECIPIENTS.map((r) => (
-            <button key={r.id} onClick={() => setRecipient(r.id)}
-              className={`text-left px-4 py-3 rounded-xl text-sm border transition-all ${
-                recipient === r.id ? "bg-zinc-900 text-white border-zinc-900" : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-400"
-              }`}>
-              {r.label}
-            </button>
-          ))}
-        </div>
-        {recipient === "busse" && (
-          <p className="mt-3 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5 leading-relaxed">
-            ⚠️ Wichtig: Bestreitest du eine Ordnungsbusse und verlierst im ordentlichen Verfahren, kann die Busse höher ausfallen als der ursprüngliche Betrag, plus Verfahrenskosten und ein möglicher Eintrag im Strafregister. Nur einreichen, wenn du wirklich eine begründete Bestreitung hast.
-          </p>
-        )}
-        {["gemeinde", "ahv", "andere"].includes(recipient) && (
-          <label className="mt-3 flex items-start gap-2.5 text-xs text-zinc-600 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2.5 leading-relaxed cursor-pointer">
-            <input type="checkbox" className="mt-0.5" checked={forceVerfuegung} onChange={(e) => setForceVerfuegung(e.target.checked)} />
-            <span>
-              <strong className="text-zinc-800">Anfechtbare Verfügung erzwingen</strong> — nutzen, wenn du bisher nur ein mündliches oder gar kein Nein erhalten hast. Der Brief verlangt statt einer Antwort einen schriftlichen, begründeten Entscheid mit Rechtsmittelbelehrung (VwVG Art. 5/35) — erst damit läuft eine Beschwerdefrist.
-            </span>
-          </label>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Was ist passiert?</label>
-        <textarea className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 resize-none outline-none focus:border-zinc-500 transition-colors min-h-[110px]"
-          placeholder="Meine Krankenkasse hat meine Kostengutsprache abgelehnt..."
-          value={situation} onChange={(e) => setSituation(e.target.value)} />
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Was willst du erreichen?</label>
-        <textarea className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-400 resize-none outline-none focus:border-zinc-500 transition-colors min-h-[80px]"
-          placeholder="Übernahme der Behandlungskosten von CHF 800 innert 14 Tagen..."
-          value={goal} onChange={(e) => setGoal(e.target.value)} />
-      </div>
-
-      <div className="mb-5 grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Dein Name</label>
-          <input className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors"
-            placeholder="Max Muster" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Adresse</label>
-          <input className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-500 transition-colors"
-            placeholder="Musterstr. 1, 3000 Bern" value={address} onChange={(e) => setAddress(e.target.value)} />
-        </div>
-      </div>
-
-      {/* Tier selector */}
-      <div className="mb-5 grid grid-cols-2 gap-3">
-        <button onClick={() => setPremium(false)}
-          className={`p-4 rounded-xl border text-left transition-all ${!premium ? "bg-zinc-900 text-white border-zinc-900" : "bg-white border-zinc-200 text-zinc-700 hover:border-zinc-400"}`}>
-          <div className="text-sm font-semibold mb-1">Kostenlos</div>
-          <div className={`text-xs ${!premium ? "text-zinc-400" : "text-zinc-400"}`}>Groq · Llama 70b<br/>{remaining} von {FREE_LIMIT} übrig</div>
-        </button>
-        <button onClick={() => setPremium(true)}
-          className={`p-4 rounded-xl border text-left transition-all ${premium ? "bg-amber-500 text-white border-amber-500" : "bg-white border-zinc-200 text-zinc-700 hover:border-amber-300"}`}>
-          <div className="text-sm font-semibold mb-1">✦ Premium</div>
-          <div className={`text-xs ${premium ? "text-amber-100" : "text-zinc-400"}`}>Claude AI · CHF 4.90 / 10 Briefe<br/>{premRemaining} Brief{premRemaining !== 1 ? "e" : ""} übrig</div>
-        </button>
-      </div>
-
-      {premium && purchasedPrem === 0 && premRemaining === 0 && (
-        <div className="mb-5 p-4 rounded-xl bg-amber-50 border border-amber-200 text-center">
-          <p className="text-sm text-amber-800 mb-3">Probe-Briefe aufgebraucht — jetzt freischalten.</p>
-          <button onClick={startCheckout} disabled={checkoutLoading}
-            className="w-full py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-white transition-all disabled:opacity-60">
-            {checkoutLoading ? "Weiterleitung…" : "10 Premium-Briefe — CHF 4.90"}
+    return (
+      <main className="max-w-lg mx-auto px-5 py-12">
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => (wiz === 0 ? setStep("landing") : setWiz(wiz - 1))}
+            className="text-sm"
+            style={{ color: "var(--ink-3)" }}
+          >
+            ← zurück
           </button>
+          <span className="coords text-xs">{wiz + 1} / {STEPS.length}</span>
         </div>
-      )}
 
-      <button onClick={generate} disabled={loading || !situation.trim() || !goal.trim()}
-        className={`w-full py-4 rounded-xl font-semibold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98] text-white ${
-          premium ? "bg-amber-500 hover:bg-amber-400" : "bg-zinc-900 hover:bg-zinc-700"
-        }`}>
-        {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-            Brief wird erstellt…
-          </span>
-        ) : premium ? "✦ Premium Brief erstellen →" : "Brief erstellen →"}
-      </button>
+        {/* progress — a horizon line filling up */}
+        <div className="mb-8 h-[2px] w-full" style={{ background: "var(--rule)" }}>
+          <div
+            className="h-full transition-all duration-300"
+            style={{ width: `${((wiz + 1) / STEPS.length) * 100}%`, background: "var(--brass)" }}
+          />
+        </div>
 
-      <p className="text-center text-xs text-zinc-300 mt-8">Name & Adresse werden nur lokal verwendet — nie an KI gesendet</p>
-    </main>
-  );
+        <h2 className="display text-3xl mb-6">{STEPS[wiz]}</h2>
+
+        {wiz === 0 && (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              {RECIPIENTS.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => { setRecipient(r.id); setWiz(1); }}
+                  className={`tile px-4 py-4 ${recipient === r.id ? "on" : ""}`}
+                >
+                  <div className="text-2xl mb-1">{r.label.split(" ")[0]}</div>
+                  <div className="t text-sm">{r.label.split(" ").slice(1).join(" ")}</div>
+                </button>
+              ))}
+            </div>
+            <div className="mt-6 flex gap-2">
+              {LANGUAGES.map((l) => (
+                <button key={l.id} onClick={() => setLang(l.id)} className={`tile flex-1 text-center px-3 py-2 ${lang === l.id ? "on" : ""}`}>
+                  <span className="t text-xs">{l.label}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+
+        {wiz === 1 && (
+          <>
+            <textarea
+              autoFocus
+              className="w-full field px-4 py-3 text-base resize-none min-h-[160px]"
+              placeholder="Meine Krankenkasse hat meine Kostengutsprache abgelehnt…"
+              value={situation}
+              onChange={(e) => setSituation(e.target.value)}
+            />
+            <p className="text-xs mt-3" style={{ color: "var(--ink-3)" }}>Was, wann, wo — Stichworte reichen.</p>
+          </>
+        )}
+
+        {wiz === 2 && (
+          <>
+            <textarea
+              autoFocus
+              className="w-full field px-4 py-3 text-base resize-none min-h-[130px]"
+              placeholder="Übernahme der Behandlungskosten von CHF 800 innert 14 Tagen…"
+              value={goal}
+              onChange={(e) => setGoal(e.target.value)}
+            />
+            {["gemeinde", "ahv", "andere"].includes(recipient) && (
+              <button
+                onClick={() => setForceVerfuegung(!forceVerfuegung)}
+                className={`tile w-full mt-4 px-4 py-4 ${forceVerfuegung ? "on" : ""}`}
+              >
+                <div className="text-2xl mb-1">📜</div>
+                <div className="t text-sm">Anfechtbare Verfügung erzwingen</div>
+                <div className="s mt-1">Bisher nur ein mündliches oder gar kein Nein? Dann erst einen Entscheid verlangen — sonst läuft keine Frist.</div>
+              </button>
+            )}
+            {recipient === "busse" && (
+              <p className="card mt-4 px-4 py-3 text-xs leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                ⚠️ Verlierst du im ordentlichen Verfahren, kann die Busse höher ausfallen — plus Kosten und möglicher Registereintrag. Nur mit begründeter Bestreitung.
+              </p>
+            )}
+          </>
+        )}
+
+        {wiz === 3 && (
+          <div className="space-y-3">
+            <input
+              autoFocus
+              className="w-full field px-4 py-3 text-base"
+              placeholder="Max Muster"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+            <input
+              className="w-full field px-4 py-3 text-base"
+              placeholder="Musterstr. 1, 3000 Bern"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>Bleibt auf deinem Gerät — wird nie an die KI gesendet.</p>
+          </div>
+        )}
+
+        {wiz === 4 && (
+          <>
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              <button onClick={() => setPremium(false)} className={`tile px-4 py-4 ${!premium ? "on" : ""}`}>
+                <div className="text-2xl mb-1">○</div>
+                <div className="t text-sm">Kostenlos</div>
+                <div className="s">{remaining} von {FREE_LIMIT} übrig</div>
+              </button>
+              <button onClick={() => setPremium(true)} className={`tile px-4 py-4 ${premium ? "on" : ""}`}>
+                <div className="text-2xl mb-1">✦</div>
+                <div className="t text-sm">Premium</div>
+                <div className="s">Präzisere Artikel · CHF 4.90</div>
+              </button>
+            </div>
+
+            {premium && purchasedPrem === 0 && premRemaining === 0 && (
+              <div className="card p-4 mb-5 text-center">
+                <p className="text-sm mb-3" style={{ color: "var(--ink-2)" }}>Probe-Briefe aufgebraucht.</p>
+                <button onClick={startCheckout} disabled={checkoutLoading} className="btn btn-primary w-full py-2.5 text-sm disabled:opacity-60">
+                  {checkoutLoading ? "Weiterleitung…" : "10 Premium-Briefe — CHF 4.90"}
+                </button>
+              </div>
+            )}
+
+            <button
+              onClick={generate}
+              disabled={loading || !situation.trim() || !goal.trim()}
+              className="btn btn-primary w-full py-4 text-sm font-semibold disabled:opacity-40 active:scale-[0.98]"
+            >
+              {loading ? "Brief wird erstellt…" : "Brief erstellen →"}
+            </button>
+          </>
+        )}
+
+        {wiz < 4 && (
+          <button
+            onClick={() => canNext && setWiz(wiz + 1)}
+            disabled={!canNext}
+            className="btn btn-primary w-full mt-8 py-4 text-sm font-semibold disabled:opacity-30"
+          >
+            Weiter →
+          </button>
+        )}
+      </main>
+    );
+  }
 
   // ── LANDING ──
   return (
     <main className="max-w-5xl mx-auto px-6 py-12">
-      <div className="mb-12 text-center">
-        <div className="inline-flex items-center gap-2 bg-red-50 border border-red-100 rounded-full px-3 py-1 mb-6">
-          <span className="w-2 h-2 rounded-full bg-red-500 inline-block" />
-          <span className="text-xs font-semibold text-red-600 tracking-wide uppercase">Einspruch</span>
-        </div>
-        <h1 className="text-6xl font-bold leading-tight text-zinc-900 mb-5">
-          Offizieller Brief.<br />In 60 Sekunden.
+      <div className="text-center mb-4">
+        <p className="kicker mb-4">Einspruch · Architect-DNA</p>
+        <h1 className="display text-5xl leading-[1.02] mb-3">
+          Du hast <em>Rechte</em>.
         </h1>
-        <p className="text-lg text-zinc-500 max-w-lg mx-auto mb-8 leading-relaxed">
-          Krankenkasse, Vermieter, Gemeinde — beschreibe dein Problem, erhalte einen formellen Brief mit korrekten Gesetzesartikeln.
-        </p>
-        <button onClick={() => setStep("form")}
-          className="px-10 py-4 rounded-xl font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-all active:scale-[0.98] text-base">
-          Jetzt Brief erstellen →
-        </button>
-        <p className="text-xs text-zinc-400 mt-3">50 Briefe kostenlos · Kein Konto nötig</p>
-      </div>
-
-      {/* Example comparison */}
-      <div className="mb-6">
-        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-1">Gleiche Situation — zwei Modelle</h2>
-        <p className="text-xs text-zinc-400 mb-5">Beide erhalten exakt dieselbe Aufgabe. Der Unterschied liegt in der juristischen Präzision.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-          {/* Free */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Kostenlos</span>
-              <span className="text-xs bg-zinc-100 text-zinc-500 px-2 py-0.5 rounded-full">Groq · Llama 70b</span>
-            </div>
-            <div className="bg-white border border-zinc-200 rounded-2xl p-6 shadow-sm">
-              <pre className="whitespace-pre-wrap text-[13.5px] text-zinc-500 leading-[1.8] font-serif">{EXAMPLE_FREE}</pre>
-            </div>
-            <ul className="mt-3 space-y-1 text-xs text-zinc-400">
-              <li>· Korrekte Grundstruktur</li>
-              <li>· KVG Art. 25 erwähnt</li>
-              <li>· Forderung vorhanden</li>
-            </ul>
-          </div>
-          {/* Premium */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold text-amber-600 uppercase tracking-wider">✦ Premium</span>
-              <span className="text-xs bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full">Claude AI (Anthropic)</span>
-            </div>
-            <div className="bg-white border border-amber-200 rounded-2xl p-6 shadow-sm ring-1 ring-amber-100">
-              <pre className="whitespace-pre-wrap text-[13.5px] text-zinc-600 leading-[1.8] font-serif">{EXAMPLE_PREMIUM}</pre>
-            </div>
-            <ul className="mt-3 space-y-1 text-xs text-zinc-500">
-              <li>· KVG Art. 25 <strong>Abs. 1</strong> + Art. 1a <strong>Abs. 2 lit. b</strong></li>
-              <li>· KVV Art. 49 mit kantonalem Bezug</li>
-              <li>· ATSG Art. 52 + Aufsichtsbehörde als Druckmittel</li>
-            </ul>
-          </div>
-        </div>
-        <p className="text-xs text-zinc-400 mt-5 text-center">
-          Beide Briefe funktionieren. Premium-Briefe zitieren Absätze und Litera — das macht den Unterschied vor Gericht.
+        <p className="text-base mb-2" style={{ color: "var(--ink-2)" }}>
+          Dreh die Welt. Klick einen Ort.
         </p>
       </div>
 
-      {/* Tiers */}
-      <div className="grid grid-cols-2 gap-4 mb-10">
-        <div className="bg-white border border-zinc-200 rounded-2xl p-6">
-          <div className="text-lg font-bold mb-1">Kostenlos</div>
-          <div className="text-xs text-zinc-400 mb-4">Groq · Llama 3.3 70b</div>
-          <ul className="text-sm text-zinc-600 space-y-2 mb-6">
-            <li>✓ 50 Briefe gratis</li>
-            <li>✓ Schweizer Gesetzesartikel</li>
-            <li>✓ Alle Behördentypen</li>
-            <li>✓ Kein Konto nötig</li>
-          </ul>
-          <div className="text-2xl font-bold">CHF 0</div>
-        </div>
-        <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 relative">
-          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">Empfohlen</div>
-          <div className="text-lg font-bold mb-1">✦ Premium</div>
-          <div className="text-xs text-amber-600 mb-4">Claude AI · Präzisere Artikel</div>
-          <ul className="text-sm text-zinc-700 space-y-2 mb-6">
-            <li>✓ 10 Briefe pro Kauf</li>
-            <li>✓ Absätze & Litera zitiert</li>
-            <li>✓ Stärkere juristische Sprache</li>
-            <li>✓ Kein Konto, keine Anmeldung nötig</li>
-          </ul>
-          <div className="text-2xl font-bold">CHF 4.90<span className="text-sm font-normal text-zinc-500"> / 10 Briefe</span></div>
-        </div>
+      <div className="max-w-2xl mx-auto mb-6">
+        <GlobeNav onOpenBrief={() => { setWiz(0); setStep("form"); }} />
       </div>
 
-      <div className="text-center mb-12">
-        <button onClick={() => setStep("form")}
-          className="px-10 py-4 rounded-xl font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-all text-base mb-3 block mx-auto">
-          Jetzt Brief erstellen →
-        </button>
-        <button onClick={startCheckout} disabled={checkoutLoading}
-          className="inline-block text-sm text-amber-600 hover:underline font-medium">
-          {checkoutLoading ? "Weiterleitung…" : "✦ Premium freischalten — CHF 4.90 →"}
-        </button>
-        <p className="text-xs text-zinc-300 mt-6">DSGVO-konform · Name & Adresse bleiben auf deinem Gerät · Kein Konto nötig</p>
-      </div>
+      <p className="text-center text-xs mb-14" style={{ color: "var(--ink-3)" }}>
+        50 Briefe kostenlos · Kein Konto nötig
+      </p>
 
-      {/* Tools */}
-      <div className="mb-8">
-        <h2 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4 text-center">Bevor du schreibst</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <a href="/wegweiser" className="p-5 rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-colors">
-            <div className="text-sm font-semibold text-zinc-900 mb-1">🧭 Wegweiser</div>
-            <div className="text-xs text-zinc-500 leading-relaxed">Welche Behörde, welche Aufsicht, welcher nächste Schritt — nach Bereich.</div>
-          </a>
-          <a href="/fristenrechner" className="p-5 rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-colors">
-            <div className="text-sm font-semibold text-zinc-900 mb-1">⏱️ Fristenrechner</div>
-            <div className="text-xs text-zinc-500 leading-relaxed">Datum der Verfügung rein, Ablauf der Beschwerdefrist raus.</div>
-          </a>
-          <a href="/belegmappe" className="p-5 rounded-2xl border border-zinc-200 hover:border-zinc-400 transition-colors">
-            <div className="text-sm font-semibold text-zinc-900 mb-1">📁 Belegmappe</div>
-            <div className="text-xs text-zinc-500 leading-relaxed">Wie du Beweise sammelst, bevor du sie im Streitfall brauchst.</div>
-          </a>
-        </div>
-      </div>
     </main>
   );
 }
@@ -520,18 +445,18 @@ function Paywall({ onBack }: { onBack: () => void }) {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen px-5 text-center max-w-sm mx-auto">
       <div className="text-5xl mb-6">⚖️</div>
-      <h2 className="text-2xl font-bold mb-3 text-zinc-900">Gratisbriefe aufgebraucht</h2>
-      <p className="text-zinc-500 text-sm mb-8 leading-relaxed">
-        Weiter mit <strong className="text-zinc-800">Claude AI</strong> — präzisere Gesetzesartikel, stärkere juristische Sprache.
+      <h2 className="text-2xl font-bold mb-3 ">Gratisbriefe aufgebraucht</h2>
+      <p className=" text-sm mb-8 leading-relaxed">
+        Weiter mit <strong className="">Claude AI</strong> — präzisere Gesetzesartikel, stärkere juristische Sprache.
       </p>
 
       <button onClick={startCheckout} disabled={loading}
-        className="w-full py-4 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-400 transition-all text-white disabled:opacity-60 mb-3">
+        className="w-full py-4 rounded-xl font-bold text-sm btn btn-primary transition-all disabled:opacity-60 mb-3">
         {loading ? "Weiterleitung…" : "✦ 10 Premium-Briefe — CHF 4.90"}
       </button>
       <p className="text-xs text-zinc-400 mb-8">Einmalig · kein Abo · sofort verfügbar</p>
 
-      <button onClick={onBack} className="text-xs text-zinc-400 hover:text-zinc-600 transition-colors">← zurück zur App</button>
+      <button onClick={onBack} className="text-xs  transition-colors">← zurück zur App</button>
     </main>
   );
 }

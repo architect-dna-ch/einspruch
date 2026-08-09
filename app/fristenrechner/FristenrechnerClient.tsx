@@ -3,11 +3,11 @@
 import { useMemo, useState } from "react";
 
 const PRESETS = [
-  { id: "30", label: "30 Tage — Standard (Verwaltungs-/Sozialversicherungsbeschwerde, VwVG/ATSG)", days: 30 },
-  { id: "20", label: "20 Tage — kürzere kantonale Verfahrensfristen (prüfe die Verfügung)", days: 20 },
-  { id: "14", label: "14 Tage — eigene Fristsetzung in einem Schreiben", days: 14 },
-  { id: "10", label: "10 Tage — Ordnungsbusse laut OBG (steht auf dem Bussenzettel — dort prüfen)", days: 10 },
-  { id: "custom", label: "Andere — steht auf der Verfügung", days: 0 },
+  { id: "30", icon: "⚖️", title: "Standard", sub: "30 Tage", days: 30 },
+  { id: "20", icon: "🏛️", title: "Kantonal", sub: "20 Tage", days: 20 },
+  { id: "14", icon: "✍️", title: "Eigene Frist", sub: "14 Tage", days: 14 },
+  { id: "10", icon: "🚗", title: "Ordnungsbusse", sub: "10 Tage", days: 10 },
+  { id: "custom", icon: "⚙️", title: "Andere", sub: "selbst eingeben", days: 0 },
 ];
 
 function fmt(d: Date) {
@@ -18,7 +18,7 @@ export default function FristenrechnerClient() {
   const [dateStr, setDateStr] = useState(() => new Date().toISOString().slice(0, 10));
   const [presetId, setPresetId] = useState("30");
   const [customDays, setCustomDays] = useState(30);
-  const [hasBelehrung, setHasBelehrung] = useState(true);
+  const [hasBelehrung, setHasBelehrung] = useState<boolean | null>(true);
 
   const days = presetId === "custom" ? customDays : PRESETS.find((p) => p.id === presetId)!.days;
 
@@ -29,12 +29,11 @@ export default function FristenrechnerClient() {
 
     // Art. 20 Abs. 1 VwVG: der Tag der Zustellung wird nicht mitgezählt — die
     // Frist läuft ab dem Folgetag; ihr letzter Tag liegt N Tage nach Zustellung.
-    let end = new Date(start);
+    const end = new Date(start);
     end.setDate(end.getDate() + days);
 
-    // Art. 20 Abs. 3 VwVG: fällt das Ende auf Samstag/Sonntag/einen eidgenössischen
-    // Feiertag, läuft die Frist bis zum nächsten Werktag. Kantonale/lokale Feiertage
-    // sind hier nicht erfasst — im Zweifel selbst prüfen.
+    // Art. 20 Abs. 3 VwVG: fällt das Ende auf ein Wochenende, läuft die Frist bis
+    // zum nächsten Werktag. Feiertage sind hier nicht erfasst.
     let shifted = false;
     while (end.getDay() === 0 || end.getDay() === 6) {
       end.setDate(end.getDate() + 1);
@@ -43,94 +42,110 @@ export default function FristenrechnerClient() {
 
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const remainingMs = end.getTime() - now.getTime();
-    const remainingDays = Math.ceil(remainingMs / 86400000);
+    const remainingDays = Math.ceil((end.getTime() - now.getTime()) / 86400000);
 
     return { end, shifted, remainingDays };
   }, [dateStr, days]);
 
+  const urgency =
+    !result ? "" : result.remainingDays < 0 ? "var(--r2, #d95926)" : result.remainingDays <= 5 ? "var(--brass)" : "var(--verdigris)";
+
   return (
     <main className="max-w-lg mx-auto px-5 py-14">
-      <a href="/" className="text-sm text-zinc-400 hover:text-zinc-600 mb-8 block">← Einspruch</a>
-      <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-3">Fristenrechner</p>
-      <h1 className="text-3xl font-bold text-zinc-900 mb-4 leading-tight">Wann läuft deine Frist ab?</h1>
-      <p className="text-zinc-600 text-[15px] leading-relaxed mb-8">
-        Fristen laufen still — dreissig Tage, keine Erinnerung. Trag das Datum der Verfügung oder Zustellung ein und wähle die Fristart.
-        Die genaue Frist steht immer auf der Verfügung selbst; ist sie dort anders angegeben, gilt diese.
+      <a href="/" className="text-sm mb-8 block" style={{ color: "var(--ink-3)" }}>← Einspruch</a>
+      <p className="kicker mb-3">Fristenrechner</p>
+      <h1 className="display text-4xl mb-3" style={{ color: "var(--ink)" }}>
+        Wann läuft deine <em>Frist</em> ab?
+      </h1>
+      <p className="text-sm mb-8" style={{ color: "var(--ink-3)" }}>
+        Fristen laufen still. Datum rein — Ablauf raus.
       </p>
 
-      <div className="mb-5">
-        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">
-          Datum der Verfügung / Zustellung
-        </label>
-        <input
-          type="date"
-          value={dateStr}
-          onChange={(e) => setDateStr(e.target.value)}
-          className="w-full bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm text-zinc-900 outline-none focus:border-zinc-500 transition-colors"
-        />
+      <div className="mb-6">
+        <p className="kicker mb-2">Datum der Verfügung</p>
+        <div className="flex gap-2">
+          <input
+            type="date"
+            value={dateStr}
+            onChange={(e) => setDateStr(e.target.value)}
+            className="field flex-1 px-4 py-3 text-base"
+          />
+          <button onClick={() => setDateStr(new Date().toISOString().slice(0, 10))} className="btn px-4 py-3 text-sm">
+            Heute
+          </button>
+        </div>
       </div>
 
-      <div className="mb-5">
-        <label className="block text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">Fristart</label>
-        <div className="space-y-2">
+      <div className="mb-6">
+        <p className="kicker mb-2">Fristart</p>
+        <div className="grid grid-cols-2 gap-2">
           {PRESETS.map((p) => (
-            <label key={p.id} className={`flex items-start gap-2.5 px-4 py-3 rounded-xl border text-sm cursor-pointer transition-colors ${
-              presetId === p.id ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 hover:border-zinc-400"
-            }`}>
-              <input type="radio" className="mt-0.5" name="preset" checked={presetId === p.id} onChange={() => setPresetId(p.id)} />
-              <span className="text-zinc-700">{p.label}</span>
-            </label>
+            <button key={p.id} onClick={() => setPresetId(p.id)} className={`tile px-4 py-3.5 ${presetId === p.id ? "on" : ""}`}>
+              <div className="text-2xl mb-1">{p.icon}</div>
+              <div className="t text-sm">{p.title}</div>
+              <div className="s">{p.sub}</div>
+            </button>
           ))}
         </div>
         {presetId === "custom" && (
-          <input
-            type="number"
-            min={1}
-            value={customDays}
-            onChange={(e) => setCustomDays(Math.max(1, parseInt(e.target.value) || 1))}
-            className="mt-2 w-32 bg-white border border-zinc-200 rounded-xl px-4 py-2.5 text-sm text-zinc-900 outline-none focus:border-zinc-500 transition-colors"
-          />
+          <div className="mt-3 flex items-center gap-3">
+            <input
+              type="number"
+              min={1}
+              value={customDays}
+              onChange={(e) => setCustomDays(Math.max(1, parseInt(e.target.value) || 1))}
+              className="field w-24 px-4 py-2.5 text-base"
+            />
+            <span className="text-sm" style={{ color: "var(--ink-3)" }}>Tage</span>
+          </div>
         )}
       </div>
 
-      <label className="mb-6 flex items-start gap-2.5 text-sm text-zinc-700 bg-zinc-50 border border-zinc-200 rounded-xl px-4 py-3 cursor-pointer">
-        <input type="checkbox" className="mt-0.5" checked={hasBelehrung} onChange={(e) => setHasBelehrung(e.target.checked)} />
-        <span>Die Verfügung enthält eine korrekte, schriftliche Rechtsmittelbelehrung (Instanz, Frist, Form genannt)</span>
-      </label>
+      <div className="mb-6">
+        <p className="kicker mb-2">Rechtsmittelbelehrung</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button onClick={() => setHasBelehrung(true)} className={`tile px-4 py-3.5 ${hasBelehrung === true ? "on" : ""}`}>
+            <div className="text-2xl mb-1">✅</div>
+            <div className="t text-sm">Vorhanden</div>
+          </button>
+          <button onClick={() => setHasBelehrung(false)} className={`tile px-4 py-3.5 ${hasBelehrung === false ? "on" : ""}`}>
+            <div className="text-2xl mb-1">⚠️</div>
+            <div className="t text-sm">Fehlt</div>
+          </button>
+        </div>
+      </div>
 
       {result && (
-        <div className="p-6 bg-white border border-zinc-200 rounded-2xl mb-6">
-          <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Frist läuft ab am</div>
-          <div className="text-xl font-bold text-zinc-900 mb-1">{fmt(result.end)}</div>
-          {result.shifted && (
-            <p className="text-xs text-zinc-500 mb-3">Fiel rechnerisch auf ein Wochenende — auf den nächsten Werktag verschoben (Art. 20 Abs. 3 VwVG). Eidgenössische und kantonale Feiertage sind hier nicht erfasst; prüfe das im Zweifel selbst.</p>
-          )}
-          <div className={`text-sm font-semibold ${result.remainingDays < 0 ? "text-red-600" : result.remainingDays <= 5 ? "text-amber-600" : "text-zinc-600"}`}>
+        <div className="card p-6 mb-6">
+          <p className="kicker mb-2">Frist läuft ab am</p>
+          <div className="display text-2xl mb-2" style={{ color: "var(--ink)" }}>{fmt(result.end)}</div>
+          <div className="coords text-sm font-semibold" style={{ color: urgency }}>
             {result.remainingDays < 0
-              ? `Abgelaufen vor ${Math.abs(result.remainingDays)} Tag${Math.abs(result.remainingDays) === 1 ? "" : "en"}`
+              ? `abgelaufen vor ${Math.abs(result.remainingDays)} Tagen`
               : result.remainingDays === 0
-              ? "Läuft heute ab"
-              : `Noch ${result.remainingDays} Tag${result.remainingDays === 1 ? "" : "e"}`}
+              ? "läuft heute ab"
+              : `noch ${result.remainingDays} Tag${result.remainingDays === 1 ? "" : "e"}`}
           </div>
+          {result.shifted && (
+            <p className="text-xs mt-3" style={{ color: "var(--ink-3)" }}>
+              Auf den nächsten Werktag verschoben (Art. 20 Abs. 3 VwVG). Feiertage sind hier nicht erfasst.
+            </p>
+          )}
         </div>
       )}
 
-      {!hasBelehrung && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">
-          <p className="text-sm text-amber-800 leading-relaxed">
-            <strong>Fehlt die Rechtsmittelbelehrung oder ist sie falsch, darf dir das nicht zum Nachteil gereichen (Art. 38 VwVG).</strong>{" "}
-            In der Praxis wird dir dann oft eine deutlich längere Nachfrist eingeräumt — aber das ist kein Freibrief. Verlasse dich nicht darauf:
-            verlange die korrekte, schriftliche Verfügung so schnell wie möglich, statt auf eine unbestimmte längere Frist zu hoffen.
+      {hasBelehrung === false && (
+        <div className="card p-4 mb-6" style={{ borderColor: "var(--brass)" }}>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+            <strong style={{ color: "var(--brass-hi)" }}>Fehlt die Belehrung, darf dir das nicht schaden (Art. 38 VwVG).</strong>{" "}
+            Oft gibt es dann eine längere Nachfrist — aber verlass dich nicht darauf. Verlange die korrekte Verfügung sofort.
           </p>
         </div>
       )}
 
-      <div className="p-6 bg-zinc-50 border border-zinc-200 rounded-2xl text-center">
-        <p className="text-sm text-zinc-500 mb-4">Noch keine schriftliche Verfügung erhalten? Erzwinge zuerst eine.</p>
-        <a href="/?go=gemeinde" className="inline-block px-8 py-3.5 rounded-xl font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-colors text-sm">
-          Anfechtbare Verfügung verlangen →
-        </a>
+      <div className="card p-6 text-center">
+        <p className="text-sm mb-4" style={{ color: "var(--ink-3)" }}>Noch keine schriftliche Verfügung?</p>
+        <a href="/?go=gemeinde" className="btn btn-primary px-8 py-3.5 text-sm">Anfechtbare Verfügung verlangen →</a>
       </div>
     </main>
   );

@@ -13,24 +13,22 @@ interface Props {
 export default function GuidePage({ kicker, title, intro, sections, ctaGo, ctaLabel }: Props) {
   return (
     <main className="max-w-2xl mx-auto px-5 py-14">
-      <a href="/" className="text-sm text-zinc-400 hover:text-zinc-600 mb-8 block">← Einspruch</a>
-      <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider mb-3">{kicker}</p>
-      <h1 className="text-3xl font-bold text-zinc-900 mb-6 leading-tight">{title}</h1>
-      <p className="text-zinc-600 text-[15px] leading-relaxed mb-10">{intro}</p>
+      <a href="/" className="text-sm mb-8 block" style={{ color: "var(--ink-3)" }}>← Einspruch</a>
+      <p className="kicker mb-3">{kicker}</p>
+      <h1 className="display text-4xl mb-6 leading-tight" style={{ color: "var(--ink)" }}>{title}</h1>
+      <p className="text-[15px] leading-relaxed mb-10" style={{ color: "var(--ink-2)" }}>{intro}</p>
 
       {sections.map((s) => (
-        <div key={s.heading} className="mb-8">
-          <h2 className="text-lg font-bold text-zinc-900 mb-2">{s.heading}</h2>
-          <p className="text-zinc-600 text-[15px] leading-relaxed whitespace-pre-line">{s.body}</p>
+        <div key={s.heading} className="card p-6 mb-3">
+          <h2 className="display text-xl mb-2" style={{ color: "var(--ink)" }}>{s.heading}</h2>
+          <p className="text-[15px] leading-relaxed whitespace-pre-line" style={{ color: "var(--ink-2)" }}>{s.body}</p>
         </div>
       ))}
 
-      <div className="mt-12 p-6 bg-zinc-50 border border-zinc-200 rounded-2xl text-center">
-        <p className="text-sm text-zinc-500 mb-4">Einspruch schreibt den Brief für dich — mit den passenden Gesetzesartikeln, in 60 Sekunden.</p>
-        <a href={`/?go=${ctaGo}`} className="inline-block px-8 py-3.5 rounded-xl font-semibold bg-zinc-900 hover:bg-zinc-700 text-white transition-colors text-sm">
-          {ctaLabel} →
-        </a>
-        <p className="text-xs text-zinc-400 mt-3">Kostenlos testen · Kein Konto nötig</p>
+      <div className="card p-6 mt-8 text-center">
+        <p className="text-sm mb-4" style={{ color: "var(--ink-3)" }}>Einspruch schreibt den Brief — mit den passenden Gesetzesartikeln, in 60 Sekunden.</p>
+        <a href={`/?go=${ctaGo}`} className="btn btn-primary px-8 py-3.5 text-sm">{ctaLabel} →</a>
+        <p className="text-xs mt-3" style={{ color: "var(--ink-3)" }}>Kostenlos testen · Kein Konto nötig</p>
       </div>
     </main>
   );
