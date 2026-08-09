@@ -115,7 +115,6 @@ export default function GlobeNav({ onOpenBrief }: { onOpenBrief: () => void }) {
       onPointerDown={(e) => {
         drag.current = { x: e.clientX, y: e.clientY, moved: false };
         vel.current = { x: 0, y: 0 };
-        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       }}
       onPointerMove={(e) => {
         const d = drag.current;
@@ -124,11 +123,14 @@ export default function GlobeNav({ onOpenBrief }: { onOpenBrief: () => void }) {
         if (!d.moved && Math.hypot(dx, dy) < 4) return;
         d.moved = true;
         const k = 0.007;
-        spin(dx * k, -dy * k);
-        vel.current = { x: dx * k * 0.5, y: -dy * k * 0.5 };
+        // This projection puts y upward (Y = CY − v.y·R), so dy needs no flip —
+        // unlike Globus, whose screen y grows downward and negates it.
+        spin(dx * k, dy * k);
+        vel.current = { x: dx * k * 0.5, y: dy * k * 0.5 };
         d.x = e.clientX; d.y = e.clientY;
       }}
-      onPointerUp={() => { setTimeout(() => { drag.current = null; }, 0); }}
+      onPointerUp={() => { drag.current = null; }}
+      onPointerLeave={() => { drag.current = null; }}
       onPointerCancel={() => { drag.current = null; }}
     >
       <svg viewBox="0 0 200 200" role="navigation" aria-label="Bereiche">
@@ -147,7 +149,7 @@ export default function GlobeNav({ onOpenBrief }: { onOpenBrief: () => void }) {
               key={p.id}
               className="gn-node"
               opacity={(0.3 + 0.7 * Math.pow(near, 1.4)).toFixed(2)}
-              onClick={() => go(p)}
+              onPointerUp={(e) => { e.stopPropagation(); go(p); }}
               onPointerEnter={() => setHover(p.id)}
               onPointerLeave={() => setHover(null)}
               tabIndex={0}
