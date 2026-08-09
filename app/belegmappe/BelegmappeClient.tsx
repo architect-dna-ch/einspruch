@@ -1,8 +1,10 @@
 "use client";
 
+import Deck from "../Deck";
+
 const CATEGORIES = [
   { icon: "📤", title: "Anträge & Gesuche", hint: "Was du eingereicht hast — mit Versanddatum." },
-  { icon: "📥", title: "Antworten & Verfügungen", hint: "Jede Reaktion, auch ein knappes Nein." },
+  { icon: "📥", title: "Antworten", hint: "Jede Reaktion, auch ein knappes Nein." },
   { icon: "⏳", title: "Fristen", hint: "Ereignis, Ablauf, was zu tun ist." },
   { icon: "💳", title: "Zahlungen", hint: "Belege, Kontoauszüge, Mahnungen." },
   { icon: "💬", title: "Kommunikation", hint: "Telefonnotizen — Datum, Person, Inhalt." },
@@ -16,18 +18,20 @@ export default function BelegmappeClient() {
       <h1 className="display text-4xl mb-3" style={{ color: "var(--ink)" }}>
         Beweise <em>sammeln</em>
       </h1>
-      <p className="text-sm mb-8" style={{ color: "var(--ink-3)" }}>Ein Ordner. Fünf Kategorien. Fertig.</p>
+      <p className="text-sm mb-8" style={{ color: "var(--ink-3)" }}>Ein Ordner. Fünf Kategorien. Wisch durch.</p>
 
-      <div className="space-y-2 mb-8">
-        {CATEGORIES.map((c) => (
-          <div key={c.title} className="card flex items-center gap-4 p-4">
-            <div className="text-3xl">{c.icon}</div>
-            <div>
-              <div className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{c.title}</div>
-              <div className="text-xs" style={{ color: "var(--ink-3)" }}>{c.hint}</div>
+      <div className="mb-10">
+        <Deck
+          label="Die fünf Kategorien"
+          cards={CATEGORIES.map((c, n) => (
+            <div className="card p-8 text-center" key={c.title} style={{ minHeight: 260 }}>
+              <div className="text-6xl mb-5">{c.icon}</div>
+              <p className="kicker mb-2">Ordner {n + 1} von {CATEGORIES.length}</p>
+              <div className="display text-2xl mb-2" style={{ color: "var(--ink)" }}>{c.title}</div>
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>{c.hint}</p>
             </div>
-          </div>
-        ))}
+          ))}
+        />
       </div>
 
       <div className="space-y-2 mb-8">

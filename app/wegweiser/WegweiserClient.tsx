@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Deck from "../Deck";
 
 interface Area {
   id: string;
@@ -77,20 +78,25 @@ export default function WegweiserClient() {
       </div>
 
       {active && (
-        <div className="card p-6 space-y-4 mb-6">
-          <div>
-            <p className="kicker mb-1">Zuständige Stelle</p>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.authority}</p>
-          </div>
-          <div>
-            <p className="kicker mb-1">Aufsicht / Beschwerdeinstanz</p>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.oversight}</p>
-          </div>
-          <div>
-            <p className="kicker mb-1">Nächster Schritt</p>
-            <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.nextStep}</p>
-          </div>
-          <a href={`/?go=${active.recipientGo}`} className="btn btn-primary px-6 py-3 text-sm">Brief erstellen →</a>
+        <div className="mb-6">
+          <Deck
+            label={`Weg für ${active.label}`}
+            cards={[
+              <div className="card p-6" key="a">
+                <p className="kicker mb-2">Schritt 1 · Zuständige Stelle</p>
+                <p className="text-[15px] leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.authority}</p>
+              </div>,
+              <div className="card p-6" key="b">
+                <p className="kicker mb-2">Schritt 2 · Aufsicht</p>
+                <p className="text-[15px] leading-relaxed" style={{ color: "var(--ink-2)" }}>{active.oversight}</p>
+              </div>,
+              <div className="card p-6" key="c">
+                <p className="kicker mb-2">Schritt 3 · Nächster Schritt</p>
+                <p className="text-[15px] leading-relaxed mb-4" style={{ color: "var(--ink-2)" }}>{active.nextStep}</p>
+                <a href={`/?go=${active.recipientGo}`} className="btn btn-primary px-6 py-3 text-sm">Brief erstellen →</a>
+              </div>,
+            ]}
+          />
         </div>
       )}
 

@@ -139,6 +139,21 @@ body {
   opacity: .7; paint-order: stroke; stroke: var(--sea-900); stroke-width: .6px;
 }
 
+/* ── swipe deck ── */
+.deck { user-select: none; }
+.deck-view { overflow: hidden; touch-action: pan-y; cursor: grab; border-radius: 1rem; }
+.deck-view:active { cursor: grabbing; }
+.deck-view:focus-visible { outline: 1px solid var(--brass); outline-offset: 3px; }
+.deck-track { display: flex; will-change: transform; }
+.deck-card { flex: 0 0 100%; min-width: 100%; }
+.deck-dots { display: flex; justify-content: center; gap: .5rem; margin-top: 1rem; }
+.deck-dot {
+  width: 7px; height: 7px; border-radius: 999px; padding: 0;
+  border: 1px solid var(--brass); background: transparent;
+  transition: background .18s, transform .18s;
+}
+.deck-dot.on { background: var(--brass); transform: scale(1.25); }
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
