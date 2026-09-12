@@ -94,8 +94,8 @@ export async function POST(req: Request) {
   } else {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const res = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      max_tokens: 1800,
+      model: "openai/gpt-oss-120b",
+      max_tokens: 2600,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user",   content: userMessage },
