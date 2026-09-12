@@ -40,9 +40,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col">
         <div className="flex-1 page">{children}</div>
         <footer className="page print:hidden text-center text-xs px-5 py-6 mt-4" style={{ color: "var(--ink-3)", borderTop: "1px solid var(--rule)" }}>
-          Keine Rechtsberatung — Selbsthilfe. Beratung:{" "}
-          <a href="https://www.caritas.ch/de/was-wir-tun/schweiz/sozial-und-schuldenberatung.html" target="_blank" rel="noopener noreferrer" className="underline">Caritas</a> ·{" "}
-          <a href="https://www.sozialinfo.ch" target="_blank" rel="noopener noreferrer" className="underline">sozialinfo.ch</a>
+          <a href="/fallpruefung" className="underline">Geld zurückfordern? Kostenlose Fallprüfung →</a>
+          <span className="block mt-2">
+            Keine Rechtsberatung — Selbsthilfe. Beratung:{" "}
+            <a href="https://www.caritas.ch/de/was-wir-tun/schweiz/sozial-und-schuldenberatung.html" target="_blank" rel="noopener noreferrer" className="underline">Caritas</a> ·{" "}
+            <a href="https://www.sozialinfo.ch" target="_blank" rel="noopener noreferrer" className="underline">sozialinfo.ch</a>
+          </span>
         </footer>
         <Analytics />
         <script
