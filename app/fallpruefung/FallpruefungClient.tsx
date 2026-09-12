@@ -45,7 +45,17 @@ export default function FallpruefungClient() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("payment") === "success") {
       setPaymentDone(true);
+      const sid = params.get("session_id");
       window.history.replaceState({}, "", "/fallpruefung");
+      if (sid) {
+        // Fallback in case the Stripe webhook doesn't fire. May duplicate the
+        // notification email if the webhook also fires — acceptable at this volume.
+        fetch("/api/notify-fallpruefung", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sid }),
+        }).catch(() => {});
+      }
     }
   }, []);
 
