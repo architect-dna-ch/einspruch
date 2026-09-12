@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import GlobeNav from "./GlobeNav";
 
 const FREE_LIMIT    = 50;
 const PREMIUM_LIMIT = 3;
@@ -404,26 +403,49 @@ export default function Home() {
   }
 
   // ── LANDING ──
+  const TOOLS = [
+    { icon: "✉️", label: "Brief erstellen", sub: "Einsprache in 60 Sekunden", action: () => { setWiz(0); setStep("form"); } },
+    { icon: "⏱️", label: "Frist berechnen", sub: "wie lange habe ich noch?", href: "/fristenrechner" },
+    { icon: "🧭", label: "Wegweiser", sub: "wer ist zuständig?", href: "/wegweiser" },
+    { icon: "📁", label: "Belegmappe", sub: "Beweise sammeln", href: "/belegmappe" },
+  ];
+
   return (
-    <main className="max-w-5xl mx-auto px-6 py-12">
-      <div className="text-center mb-4">
+    <main className="max-w-2xl mx-auto px-5 py-14">
+      <div className="mb-10">
         <p className="kicker mb-4">Einspruch · Architect-DNA</p>
-        <h1 className="display text-5xl leading-[1.02] mb-3">
+        <h1 className="display text-4xl md:text-5xl leading-[1.05] mb-4">
           Du hast <em>Rechte</em>.
         </h1>
-        <p className="text-base mb-2" style={{ color: "var(--ink-2)" }}>
-          Dreh die Welt. Klick einen Ort.
+        <p className="text-sm max-w-md" style={{ color: "var(--ink-2)" }}>
+          Krankenkasse, Vermieter, Behörde — ein formeller Brief mit den richtigen
+          Gesetzesartikeln, fertig in 60 Sekunden. Kostenlos, kein Konto nötig.
         </p>
       </div>
 
-      <div className="mx-auto mb-4" style={{ maxWidth: "min(78vh, 100%)" }}>
-        <GlobeNav onOpenBrief={() => { setWiz(0); setStep("form"); }} />
+      <div className="grid grid-cols-2 gap-3 mb-10">
+        {TOOLS.map((t) => (
+          <a
+            key={t.label}
+            href={t.href ?? "#"}
+            onClick={t.action ? (e) => { e.preventDefault(); t.action!(); } : undefined}
+            className="tile px-5 py-5"
+          >
+            <div className="text-2xl mb-2">{t.icon}</div>
+            <div className="t text-sm mb-1">{t.label}</div>
+            <div className="s">{t.sub}</div>
+          </a>
+        ))}
       </div>
 
-      <p className="text-center coords text-xs mb-10">
-        Drag to turn · click opens the place
-      </p>
-
+      <div className="card p-6 text-center">
+        <p className="kicker mb-2">Zusätzlich</p>
+        <h2 className="display text-xl mb-2">Lohnt sich das Kämpfen überhaupt?</h2>
+        <p className="text-sm mb-4" style={{ color: "var(--ink-2)" }}>
+          Kostenlose Ersteinschätzung deiner Chancen, bevor du Zeit investierst.
+        </p>
+        <a href="/fallpruefung" className="btn btn-primary px-6 py-3 text-sm inline-block">Fall kostenlos einschätzen →</a>
+      </div>
     </main>
   );
 }
