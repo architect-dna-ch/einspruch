@@ -441,7 +441,28 @@ export default function Home() {
           Krankenkasse, Vermieter, Behörde — ein formeller Brief mit den richtigen
           Gesetzesartikeln, fertig in 60 Sekunden. Kostenlos, kein Konto nötig.
         </p>
+        <button
+          onClick={() => { setWiz(0); setStep("form"); }}
+          className="btn btn-primary px-7 py-4 text-base mt-7 inline-block"
+        >
+          Brief jetzt schreiben →
+        </button>
       </div>
+
+      {/* how it works — three steps, so nobody has to guess */}
+      <ol className="grid grid-cols-3 gap-3 mb-10">
+        {[
+          ["1", "Wähle", "Krankenkasse, Vermieter, Behörde …"],
+          ["2", "Erzähl", "was passiert ist — Stichworte reichen"],
+          ["3", "Schick", "Brief kopieren, drucken oder mailen"],
+        ].map(([n, t, d]) => (
+          <li key={n} className="card px-3 py-4">
+            <div className="coords text-xs mb-2">{n}</div>
+            <div className="text-sm font-semibold mb-1">{t}</div>
+            <div className="text-xs leading-snug" style={{ color: "var(--ink-2)", overflowWrap: "anywhere" }}>{d}</div>
+          </li>
+        ))}
+      </ol>
 
       <div className="grid grid-cols-2 gap-3 mb-10">
         {TOOLS.map((t) => (
@@ -466,6 +487,12 @@ export default function Home() {
         </p>
         <a href="/fallpruefung" className="btn btn-primary px-6 py-3 text-sm inline-block">Fall kostenlos einschätzen →</a>
       </div>
+
+      <p className="text-xs text-center mt-8 leading-relaxed" style={{ color: "var(--ink-3)" }}>
+        Briefe kostenlos (Groq). Premium mit Claude: 3 gratis, dann 10 für CHF 4.90 — einmalig, kein Abo.
+        <br />Deine Angaben werden nur zum Schreiben des Briefs übermittelt und nicht gespeichert.
+        <br />Keine Rechtsberatung — eine Formulierungshilfe für deinen eigenen Brief.
+      </p>
     </main>
   );
 }
