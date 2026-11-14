@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import Anthropic from "@anthropic-ai/sdk";
+import { allow, clientIp, clip, isAdmin, spendCredit, creditsLeft } from "@/app/lib/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -65,12 +66,24 @@ export async function POST(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   if (!ALLOWED.includes(origin)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
-  const { recipient, situation, goal, premium, lang, forceVerfuegung } = await req.json();
-  if (!situation?.trim() || !goal?.trim()) {
+  const body = await req.json().catch(() => ({}));
+  const { recipient, premium, lang, forceVerfuegung, token, admin } = body ?? {};
+  const situation = clip(body?.situation, 4000), goal = clip(body?.goal, 1000);
+  if (!situation.trim() || !goal.trim()) {
     return Response.json({ error: "Missing fields" }, { status: 400 });
   }
+  const ip = clientIp(req);
+  if (!allow(`brief:${ip}`, 40, 3_600_000)) return Response.json({ error: "rate_limited" }, { status: 429 });
 
-  const usePremium = premium && !!process.env.ANTHROPIC_API_KEY;
+  // Premium (Claude) is decided here, not in the browser: the owner code, a paid pack with credits
+  // left, or a small free trial per connection and day.
+  let usePremium = false, paid = false;
+  if (premium && process.env.ANTHROPIC_API_KEY) {
+    if (isAdmin(admin)) usePremium = true;
+    else if (token && (await creditsLeft(token, "einspruch_premium")) > 0) { usePremium = true; paid = true; }
+    else if (!token && allow(`trial:${ip}`, 3, 86_400_000)) usePremium = true;
+    else return Response.json({ error: "no_credits" }, { status: 402 });
+  }
   const recipientLabel = RECIPIENTS[recipient] ?? "Behörde";
   const outputLang = LANG_NAMES[lang] ? lang : "de";
   const today = new Date().toLocaleDateString(
@@ -104,5 +117,7 @@ export async function POST(req: Request) {
     letter = res.choices[0]?.message?.content ?? "";
   }
 
-  return Response.json({ letter, tier: usePremium ? "premium" : "free" });
+  let remaining: number | undefined;
+  if (paid && letter) remaining = await spendCredit(token, "einspruch_premium");
+  return Response.json({ letter, tier: usePremium ? "premium" : "free", remaining });
 }

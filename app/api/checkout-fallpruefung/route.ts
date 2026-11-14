@@ -1,20 +1,19 @@
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+import { stripe, allow, clientIp, clip } from "@/app/lib/guard";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  if (!allow(`checkout:${clientIp(req)}`, 10, 3_600_000)) return Response.json({ error: "rate_limited" }, { status: 429 });
+  const body = await req.json().catch(() => ({}));
   const { kategorie, betrag, situation, email, name } = body ?? {};
 
-  if (!situation || typeof situation !== "string" || !email || typeof email !== "string") {
+  if (!situation || typeof situation !== "string" || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return Response.json({ error: "missing_fields" }, { status: 400 });
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await stripe().checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
     currency: "chf",
-    customer_email: email,
+    customer_email: email.slice(0, 200),
     line_items: [
       {
         price_data: {
@@ -29,11 +28,12 @@ export async function POST(req: Request) {
       },
     ],
     metadata: {
-      kategorie: String(kategorie ?? "").slice(0, 200),
-      betrag: String(betrag ?? "").slice(0, 200),
-      situation: String(situation).slice(0, 480),
-      kontakt_name: String(name ?? "").slice(0, 200),
-      kontakt_email: String(email).slice(0, 200),
+      product: "einspruch_fallpruefung",
+      kategorie: clip(kategorie, 200),
+      betrag: clip(String(betrag ?? ""), 200),
+      situation: clip(situation, 480),
+      kontakt_name: clip(name, 200),
+      kontakt_email: email.slice(0, 200),
     },
     success_url: `${process.env.NEXT_PUBLIC_URL}/fallpruefung?payment=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/fallpruefung?payment=cancelled`,

@@ -8,6 +8,8 @@ const FREE_KEY      = "einspruch_free";
 const PREM_KEY      = "einspruch_prem";
 const PURCHASED_KEY = "einspruch_purchased";
 const USED_SID_KEY  = "einspruch_used_sids";
+const TOKEN_KEY     = "einspruch_token";   // the purchase id; credits are counted on the server
+const ADMIN_KEY     = "einspruch_admin";
 
 function getUses(key: string) {
   if (typeof window === "undefined") return 0;
@@ -69,6 +71,13 @@ export default function Home() {
   const [forceVerfuegung, setForceVerfuegung] = useState(false);
   const [wiz, setWiz] = useState(0);       // one question per screen
 
+  // Earlier purchases were only remembered as used ids; carry the latest over as the server-side token.
+  useEffect(() => {
+    if (localStorage.getItem(TOKEN_KEY)) return;
+    const old: string[] = JSON.parse(localStorage.getItem(USED_SID_KEY) || "[]");
+    if (old.length) localStorage.setItem(TOKEN_KEY, old[old.length - 1]);
+  }, []);
+
   useEffect(() => {
     setFreeUses(getUses(FREE_KEY));
     setPremUses(getUses(PREM_KEY));
@@ -98,9 +107,9 @@ export default function Home() {
       .then((r) => r.json())
       .then((data) => {
         if (data.granted) {
-          const current = parseInt(localStorage.getItem(PURCHASED_KEY) || "0");
-          localStorage.setItem(PURCHASED_KEY, String(current + data.granted));
-          setPurchasedPrem((prev) => prev + data.granted);
+          localStorage.setItem(ADMIN_KEY, adminToken);
+          localStorage.setItem(PURCHASED_KEY, String(data.granted));
+          setPurchasedPrem(data.granted);
           setPremium(true);
           setStep("form");
         }
@@ -124,9 +133,11 @@ export default function Home() {
       .then((r) => r.json())
       .then((data) => {
         if (data.granted) {
-          const current = parseInt(localStorage.getItem(PURCHASED_KEY) || "0");
-          localStorage.setItem(PURCHASED_KEY, String(current + data.granted));
-          setPurchasedPrem((prev) => prev + data.granted);
+          if (data.token) localStorage.setItem(TOKEN_KEY, data.token);
+          localStorage.setItem(PURCHASED_KEY, String(data.granted));
+          localStorage.setItem(PREM_KEY, "0");
+          setPremUses(0);
+          setPurchasedPrem(data.granted);
           usedSids.push(sid);
           localStorage.setItem(USED_SID_KEY, JSON.stringify(usedSids));
           setPremium(true);
@@ -156,10 +167,19 @@ export default function Home() {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipient, situation, goal, premium, lang, forceVerfuegung }),
+        body: JSON.stringify({ recipient, situation, goal, premium, lang, forceVerfuegung,
+          token: localStorage.getItem(TOKEN_KEY) || undefined, admin: localStorage.getItem(ADMIN_KEY) || undefined }),
       });
+      if (res.status === 402) { setStep("paywall"); return; }
+      if (res.status === 429) { alert("Kurz Pause — zu viele Anfragen. Bitte in ein paar Minuten nochmals."); return; }
       const data = await res.json();
       if (data.error) throw new Error(data.error);
+      if (typeof data.remaining === "number" && data.remaining >= 0) {
+        localStorage.setItem(PURCHASED_KEY, String(data.remaining));
+        localStorage.setItem(PREM_KEY, "0");
+        setPurchasedPrem(data.remaining);
+        setPremUses(0);
+      }
       setLetter(cleanLetter(data.letter, name, address));
       const actualTier = data.tier ?? "free";
       setTier(actualTier);

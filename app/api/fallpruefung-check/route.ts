@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import { allow, clientIp, clip } from "@/app/lib/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +34,10 @@ export async function POST(req: Request) {
   const origin = req.headers.get("origin") ?? "";
   if (!ALLOWED.includes(origin)) return Response.json({ error: "Forbidden" }, { status: 403 });
 
-  const { kategorie, betrag, situation } = await req.json();
-  if (!situation?.trim()) {
+  if (!allow(`check:${clientIp(req)}`, 20, 3_600_000)) return Response.json({ error: "rate_limited" }, { status: 429 });
+  const body = await req.json().catch(() => ({}));
+  const kategorie = body?.kategorie, betrag = clip(String(body?.betrag ?? ""), 40), situation = clip(body?.situation, 3000);
+  if (!situation.trim()) {
     return Response.json({ error: "Missing fields" }, { status: 400 });
   }
 

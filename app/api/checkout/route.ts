@@ -1,9 +1,8 @@
-import Stripe from "stripe";
+import { stripe, allow, clientIp } from "@/app/lib/guard";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
-export async function POST() {
-  const session = await stripe.checkout.sessions.create({
+export async function POST(req: Request) {
+  if (!allow(`checkout:${clientIp(req)}`, 10, 3_600_000)) return Response.json({ error: "rate_limited" }, { status: 429 });
+  const session = await stripe().checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
     currency: "chf",
@@ -17,6 +16,7 @@ export async function POST() {
         quantity: 1,
       },
     ],
+    metadata: { product: "einspruch_premium" },
     success_url: `${process.env.NEXT_PUBLIC_URL}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}?payment=cancelled`,
   });
