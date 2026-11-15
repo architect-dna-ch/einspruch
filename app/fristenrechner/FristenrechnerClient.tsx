@@ -1,20 +1,22 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useLang, LangSwitch } from "@/app/lib/lang";
 
 const PRESETS = [
-  { id: "30", icon: "⚖️", title: "Standard", sub: "30 Tage", days: 30 },
-  { id: "20", icon: "🏛️", title: "Kantonal", sub: "20 Tage", days: 20 },
-  { id: "14", icon: "✍️", title: "Eigene Frist", sub: "14 Tage", days: 14 },
-  { id: "10", icon: "🚗", title: "Ordnungsbusse", sub: "10 Tage", days: 10 },
-  { id: "custom", icon: "⚙️", title: "Andere", sub: "selbst eingeben", days: 0 },
+  { id: "30", icon: "⚖️", title: ["Standard", "Standard"], sub: ["30 days", "30 Tage"], days: 30 },
+  { id: "20", icon: "🏛️", title: ["Cantonal", "Kantonal"], sub: ["20 days", "20 Tage"], days: 20 },
+  { id: "14", icon: "✍️", title: ["Own deadline", "Eigene Frist"], sub: ["14 days", "14 Tage"], days: 14 },
+  { id: "10", icon: "🚗", title: ["Fine", "Ordnungsbusse"], sub: ["10 days", "10 Tage"], days: 10 },
+  { id: "custom", icon: "⚙️", title: ["Other", "Andere"], sub: ["enter yourself", "selbst eingeben"], days: 0 },
 ];
 
-function fmt(d: Date) {
-  return d.toLocaleDateString("de-CH", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
+function fmt(d: Date, de: boolean) {
+  return d.toLocaleDateString(de ? "de-CH" : "en-GB", { weekday: "long", day: "2-digit", month: "long", year: "numeric" });
 }
 
 export default function FristenrechnerClient() {
+  const { de, t, toggle } = useLang();
   const [dateStr, setDateStr] = useState(() => new Date().toISOString().slice(0, 10));
   const [presetId, setPresetId] = useState("30");
   const [customDays, setCustomDays] = useState(30);
@@ -52,17 +54,18 @@ export default function FristenrechnerClient() {
 
   return (
     <main className="max-w-lg mx-auto px-5 py-14">
+      <LangSwitch de={de} toggle={toggle} />
       <a href="/" className="text-sm mb-8 block" style={{ color: "var(--ink-3)" }}>← Einspruch</a>
-      <p className="kicker mb-3">Fristenrechner</p>
+      <p className="kicker mb-3">{t("Deadline calculator", "Fristenrechner")}</p>
       <h1 className="display text-4xl mb-3" style={{ color: "var(--ink)" }}>
-        Wann läuft deine <em>Frist</em> ab?
+        {de ? <>Wann läuft deine <em>Frist</em> ab?</> : <>When does your <em>deadline</em> run out?</>}
       </h1>
       <p className="text-sm mb-8" style={{ color: "var(--ink-3)" }}>
-        Fristen laufen still. Datum rein — Ablauf raus.
+        {t("Deadlines run quietly. Date in — expiry out. Swiss federal procedure (VwVG).", "Fristen laufen still. Datum rein — Ablauf raus.")}
       </p>
 
       <div className="mb-6">
-        <p className="kicker mb-2">Datum der Verfügung</p>
+        <p className="kicker mb-2">{t("Date the decision was delivered", "Datum der Verfügung")}</p>
         <div className="flex gap-2">
           <input
             type="date"
@@ -71,19 +74,19 @@ export default function FristenrechnerClient() {
             className="field flex-1 px-4 py-3 text-base"
           />
           <button onClick={() => setDateStr(new Date().toISOString().slice(0, 10))} className="btn px-4 py-3 text-sm">
-            Heute
+            {t("Today", "Heute")}
           </button>
         </div>
       </div>
 
       <div className="mb-6">
-        <p className="kicker mb-2">Fristart</p>
+        <p className="kicker mb-2">{t("Type of deadline", "Fristart")}</p>
         <div className="grid grid-cols-2 gap-2">
           {PRESETS.map((p) => (
             <button key={p.id} onClick={() => setPresetId(p.id)} className={`tile px-4 py-3.5 ${presetId === p.id ? "on" : ""}`}>
               <div className="text-2xl mb-1">{p.icon}</div>
-              <div className="t text-sm">{p.title}</div>
-              <div className="s">{p.sub}</div>
+              <div className="t text-sm">{de ? p.title[1] : p.title[0]}</div>
+              <div className="s">{de ? p.sub[1] : p.sub[0]}</div>
             </button>
           ))}
         </div>
@@ -96,39 +99,39 @@ export default function FristenrechnerClient() {
               onChange={(e) => setCustomDays(Math.max(1, parseInt(e.target.value) || 1))}
               className="field w-24 px-4 py-2.5 text-base"
             />
-            <span className="text-sm" style={{ color: "var(--ink-3)" }}>Tage</span>
+            <span className="text-sm" style={{ color: "var(--ink-3)" }}>{t("days", "Tage")}</span>
           </div>
         )}
       </div>
 
       <div className="mb-6">
-        <p className="kicker mb-2">Rechtsmittelbelehrung</p>
+        <p className="kicker mb-2">{t("Notice of appeal rights", "Rechtsmittelbelehrung")}</p>
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => setHasBelehrung(true)} className={`tile px-4 py-3.5 ${hasBelehrung === true ? "on" : ""}`}>
             <div className="text-2xl mb-1">✅</div>
-            <div className="t text-sm">Vorhanden</div>
+            <div className="t text-sm">{t("Included", "Vorhanden")}</div>
           </button>
           <button onClick={() => setHasBelehrung(false)} className={`tile px-4 py-3.5 ${hasBelehrung === false ? "on" : ""}`}>
             <div className="text-2xl mb-1">⚠️</div>
-            <div className="t text-sm">Fehlt</div>
+            <div className="t text-sm">{t("Missing", "Fehlt")}</div>
           </button>
         </div>
       </div>
 
       {result && (
         <div className="card p-6 mb-6">
-          <p className="kicker mb-2">Frist läuft ab am</p>
-          <div className="display text-2xl mb-2" style={{ color: "var(--ink)" }}>{fmt(result.end)}</div>
+          <p className="kicker mb-2">{t("Deadline ends on", "Frist läuft ab am")}</p>
+          <div className="display text-2xl mb-2" style={{ color: "var(--ink)" }}>{fmt(result.end, de)}</div>
           <div className="coords text-sm font-semibold" style={{ color: urgency }}>
             {result.remainingDays < 0
-              ? `abgelaufen vor ${Math.abs(result.remainingDays)} Tagen`
+              ? t(`expired ${Math.abs(result.remainingDays)} days ago`, `abgelaufen vor ${Math.abs(result.remainingDays)} Tagen`)
               : result.remainingDays === 0
-              ? "läuft heute ab"
-              : `noch ${result.remainingDays} Tag${result.remainingDays === 1 ? "" : "e"}`}
+              ? t("ends today", "läuft heute ab")
+              : t(`${result.remainingDays} day${result.remainingDays === 1 ? "" : "s"} left`, `noch ${result.remainingDays} Tag${result.remainingDays === 1 ? "" : "e"}`)}
           </div>
           {result.shifted && (
             <p className="text-xs mt-3" style={{ color: "var(--ink-3)" }}>
-              Auf den nächsten Werktag verschoben (Art. 20 Abs. 3 VwVG). Feiertage sind hier nicht erfasst.
+              {t("Moved to the next working day (Art. 20 para. 3 VwVG). Public holidays are not included here.", "Auf den nächsten Werktag verschoben (Art. 20 Abs. 3 VwVG). Feiertage sind hier nicht erfasst.")}
             </p>
           )}
         </div>
@@ -137,15 +140,15 @@ export default function FristenrechnerClient() {
       {hasBelehrung === false && (
         <div className="card p-4 mb-6" style={{ borderColor: "var(--brass)" }}>
           <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            <strong style={{ color: "var(--brass-hi)" }}>Fehlt die Belehrung, darf dir das nicht schaden (Art. 38 VwVG).</strong>{" "}
-            Oft gibt es dann eine längere Nachfrist — aber verlass dich nicht darauf. Verlange die korrekte Verfügung sofort.
+            <strong style={{ color: "var(--brass-hi)" }}>{t("If the notice is missing, that must not harm you (Art. 38 VwVG).", "Fehlt die Belehrung, darf dir das nicht schaden (Art. 38 VwVG).")}</strong>{" "}
+            {t("There is often a longer grace period then — but don't rely on it. Demand the correct decision right away.", "Oft gibt es dann eine längere Nachfrist — aber verlass dich nicht darauf. Verlange die korrekte Verfügung sofort.")}
           </p>
         </div>
       )}
 
       <div className="card p-6 text-center">
-        <p className="text-sm mb-4" style={{ color: "var(--ink-3)" }}>Noch keine schriftliche Verfügung?</p>
-        <a href="/?go=gemeinde" className="btn btn-primary px-8 py-3.5 text-sm">Anfechtbare Verfügung verlangen →</a>
+        <p className="text-sm mb-4" style={{ color: "var(--ink-3)" }}>{t("No written decision yet?", "Noch keine schriftliche Verfügung?")}</p>
+        <a href="/?go=gemeinde" className="btn btn-primary px-8 py-3.5 text-sm">{t("Demand an appealable decision →", "Anfechtbare Verfügung verlangen →")}</a>
       </div>
     </main>
   );
