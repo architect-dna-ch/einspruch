@@ -60,6 +60,23 @@ VERFÜGUNGS-MODUS (aktiv): Der Empfänger hat den Antrag bisher nur mündlich od
 REGELN: Kein Markdown, keine Sternchen, nur reiner Text. Bestimmt und sachlich. NUR den Brief ausgeben, in der oben angegebenen Sprache.`;
 }
 
+// Tone: "friendly" = a first, cooperative request (no articles, no threats); "firm" = clear with a
+// deadline but no legal threats; "formal" = the full objection (default, as before).
+const TONES: Record<string, string> = {
+  friendly: `
+TON-MODUS: FREUNDLICHE ANFRAGE (hat Vorrang vor allen Format-Regeln oben):
+- Kurz und höflich, wie eine gute E-Mail an eine Verwaltung in der Schweiz. Höchstens 180 Wörter.
+- KEINE Gesetzesartikel, KEINE Fristsetzung, KEINE Drohung mit Schlichtungsbehörde, Gericht oder rechtlichen Schritten.
+- Absatz 2: die Vorteile für den Empfänger und konkrete Lösungsvorschläge statt Rechtsansprüche.
+- Absatz 3: freundliche Bitte um Rückmeldung, Angebot für Unterlagen oder ein Gespräch.
+- Heikle Punkte (z.B. verspätete Zahlungen) nur in einem Satz und immer zusammen mit einer Lösung.`,
+  firm: `
+TON-MODUS: BESTIMMT, ABER KOOPERATIV (hat Vorrang vor den Format-Regeln oben):
+- Höchstens 250 Wörter. Höchstens zwei Gesetzesartikel, und nur wenn sie klar auf den Sachverhalt passen.
+- Frist ja, aber KEINE Androhung von Schlichtung, Gericht oder rechtlichen Schritten.`,
+  formal: "",
+};
+
 const ALLOWED = ["https://einspruch.architect-dna.ch", "http://localhost:3000"];
 
 export async function POST(req: Request) {
@@ -69,7 +86,11 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const { recipient, premium, lang, forceVerfuegung, token, admin } = body ?? {};
   const situation = clip(body?.situation, 4000), goal = clip(body?.goal, 1000);
-  if (!situation.trim() || !goal.trim()) {
+  const tone = typeof body?.tone === "string" && body.tone in TONES ? body.tone : "formal";
+  // Revise an existing letter: { revise: { letter, instruction } } — shorter, friendlier, own wish …
+  const revLetter = clip(body?.revise?.letter, 6000), revWish = clip(body?.revise?.instruction, 400);
+  const revising = !!revLetter.trim() && !!revWish.trim();
+  if (!revising && (!situation.trim() || !goal.trim())) {
     return Response.json({ error: "Missing fields" }, { status: 400 });
   }
   const ip = clientIp(req);
@@ -90,8 +111,18 @@ export async function POST(req: Request) {
     outputLang === "fr" ? "fr-CH" : outputLang === "it" ? "it-CH" : "de-CH",
     { day: "2-digit", month: "long", year: "numeric" }
   );
-  const systemPrompt = buildPrompt(recipientLabel, today, outputLang, !!forceVerfuegung && ["gemeinde", "ahv", "andere"].includes(recipient));
-  const userMessage = `Situation: ${situation}\n\nForderung: ${goal}`;
+  const systemPrompt = revising
+    ? `Du überarbeitest einen bestehenden Brief nach Schweizer Gepflogenheiten.
+- Behalte alle Fakten, Namen, Daten, Adressen und Beträge. Erfinde nichts dazu.
+- Setze die Anweisung genau um (z.B. kürzer, freundlicher, ohne Gesetzesartikel, ohne Drohung).
+- Zitiere einen Gesetzesartikel nur, wenn er wirklich auf den Sachverhalt passt.
+- Kein Markdown, keine Sternchen. Gib NUR den überarbeiteten Brief aus, in der Sprache des Briefs.`
+    : buildPrompt(recipientLabel, today, outputLang, !!forceVerfuegung && ["gemeinde", "ahv", "andere"].includes(recipient))
+      + "\n- Zitiere einen Gesetzesartikel nur, wenn er wirklich auf den Sachverhalt passt; erfinde keine Ansprüche."
+      + (TONES[tone] ?? "");
+  const userMessage = revising
+    ? `Brief:\n${revLetter}\n\nAnweisung: ${revWish}`
+    : `Situation: ${situation}\n\nForderung: ${goal}`;
 
   let letter = "";
 

@@ -70,6 +70,10 @@ export default function Home() {
   const [recipientEmail, setRecipientEmail] = useState("");
   const [lang, setLang]                 = useState("de");
   const [forceVerfuegung, setForceVerfuegung] = useState(false);
+  const [tone, setTone] = useState<"" | "friendly" | "firm" | "formal">("");
+  const [ownWish, setOwnWish] = useState("");
+  // Landlord, employer & co.: start friendly; insurers and offices: the formal objection.
+  const effTone = tone || (["vermieter", "arbeitgeber", "telekom", "bank", "kuendigung"].includes(recipient) ? "friendly" : "formal");
   const [wiz, setWiz] = useState(0);       // one question per screen
   const { de, t, toggle } = useLang();
 
@@ -169,7 +173,7 @@ export default function Home() {
       const res = await fetch("/api/brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipient, situation, goal, premium, lang, forceVerfuegung,
+        body: JSON.stringify({ recipient, situation, goal, premium, lang, forceVerfuegung, tone: effTone,
           token: localStorage.getItem(TOKEN_KEY) || undefined, admin: localStorage.getItem(ADMIN_KEY) || undefined }),
       });
       if (res.status === 402) { setStep("paywall"); return; }
@@ -197,6 +201,36 @@ export default function Home() {
       setLoading(false);
     }
   }
+
+  /** Rework the finished letter: only what you ask for changes. */
+  async function revise(instruction: string) {
+    if (!instruction.trim() || loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/brief", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipient, lang, premium, revise: { letter, instruction },
+          token: localStorage.getItem(TOKEN_KEY) || undefined, admin: localStorage.getItem(ADMIN_KEY) || undefined }),
+      });
+      if (res.status === 402) { setStep("paywall"); return; }
+      const data = await res.json();
+      if (data.letter) { setLetter(cleanLetter(data.letter, name, address)); setOwnWish(""); }
+      else alert(t("Couldn't rework it. Try again.", "Hat nicht geklappt. Nochmal versuchen."));
+    } catch {
+      alert(t("Couldn't rework it. Try again.", "Hat nicht geklappt. Nochmal versuchen."));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const REVISIONS: [string, string][] = [
+    [t("✂️ Shorter", "✂️ Kürzer"), t("Make it clearly shorter, about half. Keep only what matters.", "Deutlich kürzer, etwa die Hälfte. Nur das Wichtigste behalten.")],
+    [t("🤝 Friendlier", "🤝 Freundlicher"), t("Make it friendly and cooperative: no legal threats, no deadline with consequences, offer solutions.", "Freundlich und kooperativ: keine rechtlichen Drohungen, keine Frist mit Konsequenzen, Lösungen anbieten.")],
+    [t("📌 Firmer", "📌 Bestimmter"), t("Make it firmer: a clear request with a 14-day deadline, still polite.", "Bestimmter: klare Forderung mit 14 Tagen Frist, trotzdem höflich.")],
+    [t("🚫 No legal articles", "🚫 Ohne Gesetze"), t("Remove all legal articles and legal language; plain, clear words.", "Alle Gesetzesartikel und Juristensprache entfernen; einfache, klare Worte.")],
+    [t("✉️ As an email", "✉️ Als E-Mail"), t("Turn it into a short email: no date line, no address block, subject line on top.", "Als kurze E-Mail: ohne Datumszeile, ohne Adressblock, Betreff oben.")],
+  ];
 
   function copy() {
     navigator.clipboard.writeText(letter);
@@ -246,6 +280,26 @@ export default function Home() {
         >
           {t("Send now →", "Jetzt senden →")}
         </a>
+      </div>
+      <div className="mt-6 print:hidden">
+        <p className="kicker mb-2">{t("Rework", "Überarbeiten")}</p>
+        <div className="flex flex-wrap gap-2">
+          {REVISIONS.map(([label, ins]) => (
+            <button key={label} onClick={() => revise(ins)} disabled={loading} className="tile px-3 py-2 text-sm disabled:opacity-50">{label}</button>
+          ))}
+        </div>
+        <div className="mt-2 flex gap-2">
+          <input
+            value={ownWish}
+            onChange={(e) => setOwnWish(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") revise(ownWish); }}
+            placeholder={t("Own change, e.g. leave out the late payments", "Eigene Änderung, z.B. Zahlungsverzug weglassen")}
+            className="flex-1 field px-4 py-2.5 text-sm outline-none"
+          />
+          <button onClick={() => revise(ownWish)} disabled={loading || !ownWish.trim()} className="btn btn-primary px-4 text-sm disabled:opacity-40">
+            {loading ? "…" : "→"}
+          </button>
+        </div>
       </div>
       {tier === "free" && remaining === 0 && (
         <div className="mt-4 p-4 card print:hidden">
@@ -342,6 +396,15 @@ export default function Home() {
               value={goal}
               onChange={(e) => setGoal(e.target.value)}
             />
+            <p className="kicker mt-6 mb-2">{t("Tone", "Ton")}</p>
+            <div className="grid grid-cols-3 gap-2">
+              {([["friendly", "🤝", t("Friendly request", "Freundliche Anfrage")], ["firm", "📌", t("Firm, deadline", "Bestimmt, mit Frist")], ["formal", "⚖️", t("Formal objection", "Formelle Einsprache")]] as const).map(([id, ic, label]) => (
+                <button key={id} onClick={() => setTone(id)} className={`tile px-3 py-3 ${effTone === id ? "on" : ""}`}>
+                  <div className="text-xl mb-1">{ic}</div>
+                  <div className="t text-xs">{label}</div>
+                </button>
+              ))}
+            </div>
             {["gemeinde", "ahv", "andere"].includes(recipient) && (
               <button
                 onClick={() => setForceVerfuegung(!forceVerfuegung)}
