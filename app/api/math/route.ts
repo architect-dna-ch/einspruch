@@ -1,4 +1,5 @@
 import Groq from "groq-sdk";
+import Anthropic from "@anthropic-ai/sdk";
 import { allow, clientIp, clip } from "@/app/lib/guard";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +22,15 @@ export async function POST(req: Request) {
   if (!allow(`math:${clientIp(req)}`, 60, 3_600_000)) return Response.json({ error: "rate_limited" }, { status: 429 });
 
   const body = await req.json().catch(() => ({}));
-  const problem = clip(body?.problem, 2000);
+  let problem = clip(body?.problem, 2000);
+  // A photo of the problem (base64 JPEG, ≤ ~5 MB): Claude reads it, then Groq solves at full speed.
+  const image = typeof body?.image === "string" && body.image.length < 7_000_000 ? body.image : "";
+  let read = "";
+  if (image) {
+    read = await readPhoto(image);
+    if (!read) return Response.json({ error: "unreadable" }, { status: 422 });
+    problem = (problem.trim() ? problem.trim() + "\n\n" : "") + read;
+  }
   if (!problem.trim()) return Response.json({ error: "Missing problem" }, { status: 400 });
   const mode = typeof body?.mode === "string" && body.mode in MODES ? body.mode : "steps";
   const lang = body?.lang === "de" ? "Deutsch (Schweiz, ss statt ß)" : "English";
@@ -52,5 +61,28 @@ REGELN:
   const lines = text.split("\n");
   const last = lines.length ? lines[lines.length - 1] : "";
   const result = last.startsWith("→") ? last.replace(/^→\s*/, "") : "";
-  return Response.json({ text, result, ms: Date.now() - t0 });
+  return Response.json({ text, result, read, ms: Date.now() - t0 });
+}
+
+/** Transcribe the maths problem on a photo (worksheet, book, whiteboard) into plain text. */
+async function readPhoto(b64: string): Promise<string> {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const params = {
+    model: "claude-opus-5-5",
+    max_tokens: 2000,
+    output_config: { effort: "low" },          // reading, not reasoning: keep it quick
+    betas: ["server-side-fallback-2026-07-01"],
+    fallbacks: "default",                     // a policy decline is re-run on a fallback model
+    messages: [{
+      role: "user",
+      content: [
+        { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+        { type: "text", text: "Schreib die Mathe-Aufgabe(n) auf diesem Foto exakt als Text ab, inklusive aller Zahlen, Einheiten und Teilaufgaben. Formeln in Unicode (², √, ×, ÷, Brüche als a/b), kein LaTeX. Steht ein Lösungsversuch daneben, schreib ihn mit 'Lösungsversuch:' darunter ab. Nur der abgeschriebene Text, keine Lösung, kein Kommentar. Ist keine Aufgabe zu erkennen, antworte nur: KEINE AUFGABE" },
+      ],
+    }],
+  };
+  const msg = await client.beta.messages.create(params as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
+  if (msg.stop_reason === "refusal") return "";
+  const text = msg.content.map((b) => (b.type === "text" ? b.text : "")).join("").trim();
+  return text && !text.startsWith("KEINE AUFGABE") ? text : "";
 }
